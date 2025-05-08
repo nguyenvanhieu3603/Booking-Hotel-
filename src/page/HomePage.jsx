@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import VietNamFlag from "../assets/img/VietNam.png";
 import AmericaFlag from "../assets/img/America.png";
 import CircleHelp from "../assets/icon/CircleHelp";
+import Footer from "../component/Footer";
 
 function HomePage() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -127,6 +128,7 @@ function HomePage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
