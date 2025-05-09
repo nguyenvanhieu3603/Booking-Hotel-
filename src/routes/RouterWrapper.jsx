@@ -1,38 +1,42 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import React from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from '../page/HomePage';
 import LogIn from '../page/LogIn';
 import Register from '../page/Register';
-import ForgotPassword from './ForgotPassword';
-import ResetPassword from './ResetPassword';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
-
+import ForgotPassword from '../page/ForgotPassword';
+import ResetPassword from '../page/ResetPassword';
+import HotelsPage from '../page/HotelsPage';
 function RouterWrapper() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <ProtectedRoute><HomePage /></ProtectedRoute>,
-    },
-    {
-      path: "/login",
-      element: <PublicRoute><LogIn /></PublicRoute>,
-    },
-    {
-      path: "/register",
-      element: <PublicRoute><Register /></PublicRoute>,
-    },
-    {
-      path: "/forgot-password",
-      element: <PublicRoute><ForgotPassword /></PublicRoute>,
-    },
-    {
-      path: "/reset-password",
-      element: <PublicRoute><ResetPassword /></PublicRoute>,
-    },
-  ]);
 
-  return <RouterProvider router={router} />;
+    const router = createBrowserRouter([
+        {
+            path: "/",
+            element: <HomePage/>
+        },
+        {
+          path: "/login",
+          element: <LogIn/>
+        },
+        {
+          path: "/register",
+          element: <Register/>
+        },
+        {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+        },
+        {
+        path: "/reset-password",
+        element: <ResetPassword />,
+        },
+        {
+        path: "/hotels",
+        element: <HotelsPage />,
+        },
+        
+     ]);
+
+  return <RouterProvider router={router}/>
 }
 
-export default RouterWrapper;
+export default RouterWrapper
