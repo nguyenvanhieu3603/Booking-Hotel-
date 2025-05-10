@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json");
 
-include "../db_connect.php";
+require_once PROJECT_ROOT_PATH . "/Model/Database.php";
 
 // Fetch hotels from the database
 $sql = "SELECT id, name, address, description, rating FROM hotels";

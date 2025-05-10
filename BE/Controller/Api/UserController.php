@@ -1,4 +1,6 @@
 <?php
+use App\Models\ReviewModel; // Add this line to import the ReviewModel class
+
 class UserController extends BaseController
 {
     /**

@@ -12,7 +12,7 @@ require_once PROJECT_ROOT_PATH . "/Model/Database.php";
 require_once PROJECT_ROOT_PATH . "/Model/UserModel.php";
 require_once PROJECT_ROOT_PATH . "/Model/HotelModel.php";
 require_once PROJECT_ROOT_PATH . "/Model/RoomModel.php";
-require_once PROJECT_ROOT_PATH . "/Model/BookingModel.php";  
-require_once PROJECT_ROOT_PATH . "/Model/PaymentModel.php";  
-require_once PROJECT_ROOT_PATH . "/Model/ReviewModel.php";
+// require_once PROJECT_ROOT_PATH . "/Model/BookingModel.php";  
+// require_once PROJECT_ROOT_PATH . "/Model/PaymentModel.php";  
+// require_once PROJECT_ROOT_PATH . "/Model/ReviewModel.php";
 ?>
