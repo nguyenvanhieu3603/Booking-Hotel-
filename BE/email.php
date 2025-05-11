@@ -15,12 +15,12 @@ function sendMail($to, $subject, $otp)
         $mail->isSMTP();                                            // Send using SMTP
         $mail->Host       = 'smtp.gmail.com';                     // Set the SMTP server to send through
         $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-        $mail->Username   = 'supermanenderdragon@gmail.com';                            //email tạm
-        $mail->Password   = 'gfkq qwdq ykkg iecv';                                   // SMTP password
+        $mail->Username   = getenv('EMAIL_ADDRESS');                            //email tạm
+        $mail->Password   = getenv('EMAIL_PASSWORD');                                   // SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
         $mail->Port       = 587;                                    // TCP port to connect to
 
-        $mail->setFrom('.com', 'OTP');
+        $mail->setFrom(getenv('EMAIL_ADDRESS'), 'OTP');
         $mail->addAddress($to, 'OTP');     // Nguoi nhan
 
         $mail->isHTML(true);
