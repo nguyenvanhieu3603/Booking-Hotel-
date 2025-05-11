@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import HomePage from '../page/HomePage';
 import LogIn from '../page/LogIn';
 import Register from '../page/Register';
-import ForgotPassword from './ForgotPassword';
-import ResetPassword from './ResetPassword';
+import ForgotPassword from '../page/ForgotPassword';
+import ResetPassword from '../page/ResetPassword';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 
@@ -12,23 +12,39 @@ function RouterWrapper() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <><HomePage /></>,
+      element: 
+      <>
+        <HomePage />
+        </>,
     },
     {
       path: "/login",
-      element: <LogIn />,
+      element: 
+      <PublicRoute>
+        <LogIn />
+        </PublicRoute>,
     },
     {
       path: "/register",
-      element: <Register />,
+      element: 
+      <PublicRoute>
+        <Register />
+      </PublicRoute>,
     },
     {
       path: "/forgot-password",
-      element: <ForgotPassword />,
+      element: 
+      <PublicRoute>
+        <ForgotPassword />
+        </PublicRoute>,
     },
     {
       path: "/reset-password",
-      element: <ResetPassword />,
+      element: 
+      <PublicRoute>
+        <ResetPassword />
+        </PublicRoute>,
+
     },
   ]);
 
