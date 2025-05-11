@@ -1,103 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import VietNamFlag from "../assets/img/VietNam.png";
-import AmericaFlag from "../assets/img/America.png";
-import CircleHelp from "../assets/icon/CircleHelp";
+import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaCheckCircle, FaMapMarkerAlt, FaStar } from "react-icons/fa"; // Import react-icons
+
 import Footer from "../component/Footer";
+import Header from "../component/Header";
+import { Link } from "react-router-dom";
 
 function HomePage() {
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsDropdownVisible(!isDropdownVisible);
-  };
-
-  const handleClickOutside = (event) => {
-    if (!event.target.closest(".dropdown-container")) {
-      setIsDropdownVisible(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
+  const [showGuestDropdown, setShowGuestDropdown] = useState(false);
 
   return (
     <div className="">
       {/* Hero */}
       <div className="bg-cover bg-center text-white h-205 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80')]">
-        <div className="container mx-auto">
-          {/* Header */}
-          <div className="flex justify-between items-center py-4 ">
-            <Link to={"/"} className="text-2xl font-bold">
-              Booking.com
-            </Link>
-            <div className="flex items-center space-x-3 relative dropdown-container">
-              <Link
-                className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3 "
-                to={"/"}
-              >
-                VNĐ
-              </Link>
-              <div className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3">
-                <img
-                  src={VietNamFlag}
-                  alt="Vietnam Flag"
-                  className="rounded-full w-6 h-6 object-cover cursor-pointer  "
-                  onClick={toggleDropdown}
-                />
-              </div>
-              <div
-                className={`absolute right-[280px] top-[49px] bg-[#f5f1f1] rounded-lg p-3 transition-all duration-500 ease-in-out overflow-hidden shadow-lg transform ${
-                  isDropdownVisible
-                    ? "max-h-[130px] opacity-100 scale-y-100"
-                    : "max-h-0 opacity-0 scale-y-0"
-                } w-[130px] origin-top`}
-              >
-                <ul className="text-[#003b95]">
-                  <li className="flex justify-between py-1 hover:bg-gray-200 cursor-pointer">
-                    <span>Tiếng Việt</span>
-                    <img
-                      src={VietNamFlag}
-                      alt="Vietnam Flag"
-                      className="rounded-full w-6 h-6 object-cover cursor-pointer"
-                    />
-                  </li>
-                  <li className="flex justify-between py-1 hover:bg-gray-200 cursor-pointer">
-                    <span>English</span>
-                    <img
-                      src={AmericaFlag}
-                      alt="America Flag"
-                      className="rounded-full w-6 h-6 object-cover cursor-pointer"
-                    />
-                  </li>
-                </ul>
-              </div>
+        {/* Header */}
+        <Header />
 
-              <Link
-                className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3"
-                to={"/help"}
-              >
-                <CircleHelp />
-              </Link>
-              <Link
-                className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4"
-                to={"/help"}
-              >
-                Đăng ký
-              </Link>
-              <Link
-                className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4"
-                to={"/help"}
-              >
-                Đăng nhập
-              </Link>
-            </div>
-          </div>
-        </div>
         <div className=" text-white mt-[150px] py-8">
           <div className="container mx-auto">
             <h1 className="text-4xl font-bold text-center mb-4">
@@ -117,23 +39,220 @@ function HomePage() {
               </div>
               <div className="flex items-center gap-2 border-r pr-4">
                 <i className="fas fa-calendar-alt text-gray-500"></i>
-                <span className="text-gray-700">
-                  Ngày nhận phòng — Ngày trả phòng
-                </span>
+                <DatePicker
+                  selected={checkInDate}
+                  onChange={(date) => setCheckInDate(date)}
+                  placeholderText="Ngày nhận phòng"
+                  className="outline-none text-gray-700"
+                />
+                <span>—</span>
+                <DatePicker
+                  selected={checkOutDate}
+                  onChange={(date) => setCheckOutDate(date)}
+                  placeholderText="Ngày trả phòng"
+                  className="outline-none text-gray-700"
+                />
               </div>
-              <div className="flex items-center gap-2 border-r pr-4">
-                <i className="fas fa-user text-gray-500"></i>
-                <span className="text-gray-700">
-                  2 người lớn - 0 trẻ em - 1 phòng
-                </span>
+              <div className="relative">
+                <div
+                  className="flex items-center gap-2 border-r pr-4 cursor-pointer"
+                  onClick={() => setShowGuestDropdown(!showGuestDropdown)}
+                >
+                  <i className="fas fa-user text-gray-500"></i>
+                  <select
+                    value={guests.adults}
+                    onChange={(e) =>
+                      setGuests({ ...guests, adults: parseInt(e.target.value) })
+                    }
+                    className="outline-none text-gray-700 bg-transparent cursor-pointer"
+                  >
+                    <option value={1}>1 Khách</option>
+                    <option value={2}>2 Khách</option>
+                    <option value={3}>3 Khách</option>
+                    <option value={4}>4 Khách</option>
+                    <option value={5}>5+ Khách</option>
+                  </select>
+                </div>
               </div>
-              <button className="bg-[#febb02] text-white px-6 py-2 rounded-full font-bold hover:bg-[#e0a800] transition">
+              <button className="bg-[#febb02] cursor-pointer text-white px-6 py-2 rounded-full font-bold hover:bg-[#e0a800] transition">
                 Tìm
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Nội dung chính */}
+      <div className="container mx-auto mt-12">
+        {/* Khách Sạn Nổi Bật */}
+        <div className="mb-12 mt-9">
+          <div className="flex justify-between items-center">
+            
+            <h2 className="text-2xl font-bold mb-2">Khách Sạn Nổi Bật</h2>
+
+            <Link
+              to={"/"}
+              className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
+            >
+              Xem tất cả
+            </Link>
+          </div>
+          <h4 className="font-light mb-6">
+            Những lựa chọn hàng đầu cho kỳ nghỉ của bạn
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
+              <img
+                src="https://du-lich.chudu24.com/f/m/2105/20/khach-san-sai-gon-ha-long-64.jpg"
+                alt="Hotel 1"
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Vinpearl Resort & Spa Hạ Long
+                </h3>
+                <p className="text-gray-500 mt-2">Hạ Long, Quảng Ninh</p>
+                <p className="text-[#febb02] font-bold text-lg mt-4">
+                  2.990.000 VND/đêm
+                </p>
+              </div>
+            </div>
+            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
+              <img
+                src="https://royalhalonghotel.com/wp-content/uploads/2023/05/Royal-Ha-Long-slider-02.jpg"
+                alt="Hotel 2"
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Hanoi La Siesta
+                </h3>
+                <p className="text-gray-500 mt-2">Hà Nội</p>
+                <p className="text-[#febb02] font-bold text-lg mt-4">
+                  1.690.000 VND/đêm
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Điểm Đến Phổ Biến */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold mb-2">Điểm Đến Phổ Biến</h2>
+            <Link
+              to={"/"}
+              className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
+            >
+              Xem tất cả
+            </Link>
+          </div>
+          <h4 className="font-light mb-6">
+            Khám phá các địa điểm thu hút khách du lịch
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
+              <img
+                src="https://image-tc.galaxy.tf/wijpeg-badmmtam0acrjkvm41xc4dt3e/he-nay-ru-ban-be-du-29-04-2018-02-12_standard.jpg?crop=70%2C0%2C691%2C518"
+                alt="Hạ Long"
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800">Hạ Long</h3>
+                <p className="text-gray-500 mt-2">40 khách sạn</p>
+              </div>
+            </div>
+            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
+              <img
+                src="https://vcdn1-dulich.vnecdn.net/2022/06/01/CauVangDaNang-1654082224-7229-1654082320.jpg?w=0&h=0&q=100&dpr=2&fit=crop&s=MeVMb72UZA27ivcyB3s7Kg"
+                alt="Đà Nẵng"
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800">Đà Nẵng</h3>
+                <p className="text-gray-500 mt-2">50 khách sạn</p>
+              </div>
+            </div>
+            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
+              <img
+                src="https://nld.mediacdn.vn/291774122806476800/2024/8/16/tp-65-1723817004792851519414.jpg"
+                alt="TP Hồ Chí Minh"
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  TP Hồ Chí Minh
+                </h3>
+                <p className="text-gray-500 mt-2">60 khách sạn</p>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+
+        {/* Tại Sao Chọn Booking */}
+        <div className="mb-12 bg-[#f8f9fa] p-8 rounded-lg">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Tại Sao Chọn Booking
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
+              <FaCheckCircle className="text-[#febb02] text-4xl mb-4 justify-center" />
+              <h3 className="text-lg font-semibold">Lựa Chọn Tốt Nhất</h3>
+              <p className="text-gray-500">
+                Hợp tác với các khách sạn hàng đầu để đảm bảo chất lượng dịch
+                vụ.
+              </p>
+            </div>
+            <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
+              <FaMapMarkerAlt className="text-[#febb02] text-4xl mb-4 justify-center" />
+              <h3 className="text-lg font-semibold">Vị Trí Thuận Tiện</h3>
+              <p className="text-gray-500">
+                Các khách sạn của chúng tôi nằm ở những vị trí đặc sắc.
+              </p>
+            </div>
+            <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
+              <FaStar className="text-[#febb02] text-4xl mb-4 justify-center" />
+              <h3 className="text-lg font-semibold">Đánh Giá Tin Cậy</h3>
+              <p className="text-gray-500">
+                Đánh giá từ các khách hàng giúp bạn lựa chọn chính xác.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Khách Hàng Nói Gì */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Khách Hàng Nói Gì
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 italic">
+                "Kỳ nghỉ tuyệt vời tại khách sạn này! Căn phòng rất sạch sẽ,
+                nhân viên thân thiện và dịch vụ hoàn hảo. Chắc chắn sẽ quay
+                lại!"
+              </p>
+              <p className="text-right font-semibold mt-4">- Nguyễn Thị Mai</p>
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 italic">
+                "Mọi thứ hoàn hảo từ vị trí thuận tiện đến chất lượng dịch vụ.
+                Chắc chắn sẽ giới thiệu cho bạn bè!"
+              </p>
+              <p className="text-right font-semibold mt-4">- Trần Văn Nam</p>
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 italic">
+                "Khách sạn rất đẹp và tiện nghi. Nhân viên hỗ trợ nhiệt tình.
+                Rất hài lòng với kỳ nghỉ của mình!"
+              </p>
+              <p className="text-right font-semibold mt-4">- Lê Hoàng Anh</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
