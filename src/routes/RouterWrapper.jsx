@@ -44,6 +44,7 @@ function RouterWrapper() {
       <PublicRoute>
         <ResetPassword />
         </PublicRoute>,
+
     },
   ]);
 
