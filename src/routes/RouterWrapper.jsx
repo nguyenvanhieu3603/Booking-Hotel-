@@ -12,23 +12,23 @@ function RouterWrapper() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <ProtectedRoute><HomePage /></ProtectedRoute>,
+      element: <><HomePage /></>,
     },
     {
       path: "/login",
-      element: <PublicRoute><LogIn /></PublicRoute>,
+      element: <LogIn />,
     },
     {
       path: "/register",
-      element: <PublicRoute><Register /></PublicRoute>,
+      element: <Register />,
     },
     {
       path: "/forgot-password",
-      element: <PublicRoute><ForgotPassword /></PublicRoute>,
+      element: <ForgotPassword />,
     },
     {
       path: "/reset-password",
-      element: <PublicRoute><ResetPassword /></PublicRoute>,
+      element: <ResetPassword />,
     },
   ]);
 
