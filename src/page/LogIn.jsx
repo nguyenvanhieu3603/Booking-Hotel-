@@ -56,7 +56,7 @@ function LogIn() {
           <Link 
           to={"/register"} 
           className="text-blue-600 hover:underline">Đăng ký</Link>
-          <a href="#" className="text-blue-600 hover:underline">Quên mật khẩu?</a>
+          <Link to={"/forgot-password"} className="text-blue-600 hover:underline">Quên mật khẩu?</Link>
         </div>
       </div>
     </div>

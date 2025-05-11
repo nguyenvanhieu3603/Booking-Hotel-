@@ -28,10 +28,10 @@ function HomePage() {
   return (
     <div className="">
       {/* Hero */}
-      <div className="bg-[#003b95] text-white h-55">
+      <div className="bg-cover bg-center text-white h-205 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80')]">
         <div className="container mx-auto">
           {/* Header */}
-          <div className="flex bg-[#003b95] justify-between items-center py-4 ">
+          <div className="flex justify-between items-center py-4 ">
             <Link to={"/"} className="text-2xl font-bold">
               Booking.com
             </Link>
@@ -97,34 +97,40 @@ function HomePage() {
               </Link>
             </div>
           </div>
-
-          
         </div>
-      </div>
-      <div className="bg-[#003b95] text-white py-8">
-        <div className="container mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-4">Tìm chỗ nghỉ tiếp theo</h1>
-          <p className="text-center text-lg mb-6">Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà và nhiều hơn nữa...</p>
-          <div className="flex items-center justify-center gap-4 bg-white rounded-full p-4 shadow-md">
-            <div className="flex items-center gap-2 border-r pr-4">
-              <i className="fas fa-bed text-gray-500"></i>
-              <input
-                type="text"
-                placeholder="Bạn muốn đến đâu?"
-                className="outline-none text-gray-700"
-              />
+        <div className=" text-white mt-[150px] py-8">
+          <div className="container mx-auto">
+            <h1 className="text-4xl font-bold text-center mb-4">
+              Tìm chỗ nghỉ tiếp theo
+            </h1>
+            <p className="text-center text-lg mb-6">
+              Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà và nhiều hơn nữa...
+            </p>
+            <div className="flex items-center justify-center gap-4 bg-white rounded-2xl p-4 shadow-md">
+              <div className="flex items-center gap-2 border-r pr-4">
+                <i className="fas fa-bed text-gray-500"></i>
+                <input
+                  type="text"
+                  placeholder="Bạn muốn đến đâu?"
+                  className="outline-none text-gray-700"
+                />
+              </div>
+              <div className="flex items-center gap-2 border-r pr-4">
+                <i className="fas fa-calendar-alt text-gray-500"></i>
+                <span className="text-gray-700">
+                  Ngày nhận phòng — Ngày trả phòng
+                </span>
+              </div>
+              <div className="flex items-center gap-2 border-r pr-4">
+                <i className="fas fa-user text-gray-500"></i>
+                <span className="text-gray-700">
+                  2 người lớn - 0 trẻ em - 1 phòng
+                </span>
+              </div>
+              <button className="bg-[#febb02] text-white px-6 py-2 rounded-full font-bold hover:bg-[#e0a800] transition">
+                Tìm
+              </button>
             </div>
-            <div className="flex items-center gap-2 border-r pr-4">
-              <i className="fas fa-calendar-alt text-gray-500"></i>
-              <span className="text-gray-700">Ngày nhận phòng — Ngày trả phòng</span>
-            </div>
-            <div className="flex items-center gap-2 border-r pr-4">
-              <i className="fas fa-user text-gray-500"></i>
-              <span className="text-gray-700">2 người lớn - 0 trẻ em - 1 phòng</span>
-            </div>
-            <button className="bg-[#febb02] text-white px-6 py-2 rounded-full font-bold hover:bg-[#e0a800] transition">
-              Tìm
-            </button>
           </div>
         </div>
       </div>
