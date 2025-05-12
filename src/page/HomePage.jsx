@@ -6,6 +6,7 @@ import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl"; // Import FormattedMessage
+import Calendar from "react-calendar";
 
 function HomePage() {
   const intl = useIntl();
@@ -15,13 +16,17 @@ function HomePage() {
   const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
 
+  const convertToUSD = (priceInVND) => {
+    const exchangeRate = 26000; // 1 USD = 26,000 VND
+    return (priceInVND / exchangeRate).toFixed(2);
+  };
+
   return (
     <div className="">
       {/* Hero */}
       <div className="bg-cover bg-center text-white h-205 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80')]">
         {/* Header */}
         <Header />
-
         <div className=" text-white mt-[150px] py-8">
           <div className="container mx-auto">
             <h1 className="text-4xl font-bold text-center mb-4">
@@ -45,19 +50,21 @@ function HomePage() {
                   selected={checkInDate}
                   onChange={(date) => setCheckInDate(date)}
                   placeholderText={intl.formatMessage({ id: "homepage.check_in_date", defaultMessage: "Ngày nhận phòng" })}
-                  className="outline-none text-gray-700"
+                  className="outline-none text-gray-700 bg-gray-100 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#febb02] focus:border-[#febb02]"
+                  minDate={new Date()}
                 />
-                <span>—</span>
+                <span className="text-gray-500">—</span>
                 <DatePicker
                   selected={checkOutDate}
                   onChange={(date) => setCheckOutDate(date)}
                   placeholderText={intl.formatMessage({ id: "homepage.check_out_date", defaultMessage: "Ngày trả phòng" })}
-                  className="outline-none text-gray-700"
+                  className="outline-none text-gray-700 bg-gray-100 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#febb02] focus:border-[#febb02]"
+                  minDate={checkInDate || new Date()}
                 />
               </div>
               <div className="relative">
                 <div
-                  className="flex items-center gap-2 border-r pr-4 cursor-pointer"
+                  className="flex items-center gap-2 border-r pr-4 cursor-pointer bg-gray-100 rounded-lg px-4 py-2 shadow-sm hover:bg-gray-200 transition"
                   onClick={() => setShowGuestDropdown(!showGuestDropdown)}
                 >
                   <i className="fas fa-user text-gray-500"></i>
@@ -127,7 +134,9 @@ function HomePage() {
                 </h3>
                 <p className="text-gray-500 mt-2">Hạ Long, Quảng Ninh</p>
                 <p className="text-[#febb02] font-bold text-lg mt-4">
-                  2.990.000 VND/đêm
+                  {intl.locale === "en"
+                    ? `$${convertToUSD(2990000)} / night`
+                    : "2.990.000 VND/đêm"}
                 </p>
               </div>
             </div>
@@ -143,7 +152,9 @@ function HomePage() {
                 </h3>
                 <p className="text-gray-500 mt-2">Hà Nội</p>
                 <p className="text-[#febb02] font-bold text-lg mt-4">
-                  1.690.000 VND/đêm
+                  {intl.locale === "en"
+                    ? `$${convertToUSD(1690000)} / night`
+                    : "1.690.000 VND/đêm"}
                 </p>
               </div>
             </div>
