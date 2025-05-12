@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCheckCircle, FaMapMarkerAlt, FaStar } from "react-icons/fa"; // Import react-icons
-
 import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
+import { FormattedMessage, useIntl } from "react-intl"; // Import FormattedMessage
 
 function HomePage() {
+  const intl = useIntl();
+
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
@@ -23,17 +25,17 @@ function HomePage() {
         <div className=" text-white mt-[150px] py-8">
           <div className="container mx-auto">
             <h1 className="text-4xl font-bold text-center mb-4">
-              Tìm chỗ nghỉ tiếp theo
+              <FormattedMessage id="homepage.find_next_stay" defaultMessage="Tìm chỗ nghỉ tiếp theo" />
             </h1>
             <p className="text-center text-lg mb-6">
-              Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà và nhiều hơn nữa...
+              <FormattedMessage id="homepage.find_deals" defaultMessage="Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà và nhiều hơn nữa..." />
             </p>
             <div className="flex items-center justify-center gap-4 bg-white rounded-2xl p-4 shadow-md">
               <div className="flex items-center gap-2 border-r pr-4">
                 <i className="fas fa-bed text-gray-500"></i>
                 <input
                   type="text"
-                  placeholder="Bạn muốn đến đâu?"
+                  placeholder={intl.formatMessage({ id: "homepage.where_to_go", defaultMessage: "Bạn muốn đến đâu?" })}
                   className="outline-none text-gray-700"
                 />
               </div>
@@ -42,14 +44,14 @@ function HomePage() {
                 <DatePicker
                   selected={checkInDate}
                   onChange={(date) => setCheckInDate(date)}
-                  placeholderText="Ngày nhận phòng"
+                  placeholderText={intl.formatMessage({ id: "homepage.check_in_date", defaultMessage: "Ngày nhận phòng" })}
                   className="outline-none text-gray-700"
                 />
                 <span>—</span>
                 <DatePicker
                   selected={checkOutDate}
                   onChange={(date) => setCheckOutDate(date)}
-                  placeholderText="Ngày trả phòng"
+                  placeholderText={intl.formatMessage({ id: "homepage.check_out_date", defaultMessage: "Ngày trả phòng" })}
                   className="outline-none text-gray-700"
                 />
               </div>
@@ -66,16 +68,26 @@ function HomePage() {
                     }
                     className="outline-none text-gray-700 bg-transparent cursor-pointer"
                   >
-                    <option value={1}>1 Khách</option>
-                    <option value={2}>2 Khách</option>
-                    <option value={3}>3 Khách</option>
-                    <option value={4}>4 Khách</option>
-                    <option value={5}>5+ Khách</option>
+                    <option value={1}>
+                      <FormattedMessage id="homepage.one_guest" defaultMessage="1 Khách" />
+                    </option>
+                    <option value={2}>
+                      <FormattedMessage id="homepage.two_guests" defaultMessage="2 Khách" />
+                    </option>
+                    <option value={3}>
+                      <FormattedMessage id="homepage.three_guests" defaultMessage="3 Khách" />
+                    </option>
+                    <option value={4}>
+                      <FormattedMessage id="homepage.four_guests" defaultMessage="4 Khách" />
+                    </option>
+                    <option value={5}>
+                      <FormattedMessage id="homepage.five_plus_guests" defaultMessage="5+ Khách" />
+                    </option>
                   </select>
                 </div>
               </div>
               <button className="bg-[#febb02] cursor-pointer text-white px-6 py-2 rounded-full font-bold hover:bg-[#e0a800] transition">
-                Tìm
+                <FormattedMessage id="homepage.search" defaultMessage="Tìm" />
               </button>
             </div>
           </div>
@@ -88,17 +100,19 @@ function HomePage() {
         <div className="mb-12 mt-9">
           <div className="flex justify-between items-center">
             
-            <h2 className="text-2xl font-bold mb-2">Khách Sạn Nổi Bật</h2>
+            <h2 className="text-2xl font-bold mb-2">
+              <FormattedMessage id="homepage.featured_hotels" defaultMessage="Khách Sạn Nổi Bật" />
+            </h2>
 
             <Link
               to={"/"}
               className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
             >
-              Xem tất cả
+              <FormattedMessage id="homepage.view_all" defaultMessage="Xem tất cả" />
             </Link>
           </div>
           <h4 className="font-light mb-6">
-            Những lựa chọn hàng đầu cho kỳ nghỉ của bạn
+            <FormattedMessage id="homepage.top_choices" defaultMessage="Những lựa chọn hàng đầu cho kỳ nghỉ của bạn" />
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -139,16 +153,18 @@ function HomePage() {
         {/* Điểm Đến Phổ Biến */}
         <div className="mb-12">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold mb-2">Điểm Đến Phổ Biến</h2>
+            <h2 className="text-2xl font-bold mb-2">
+              <FormattedMessage id="homepage.popular_destinations" defaultMessage="Điểm Đến Phổ Biến" />
+            </h2>
             <Link
               to={"/"}
               className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
             >
-              Xem tất cả
+              <FormattedMessage id="homepage.view_all" defaultMessage="Xem tất cả" />
             </Link>
           </div>
           <h4 className="font-light mb-6">
-            Khám phá các địa điểm thu hút khách du lịch
+            <FormattedMessage id="homepage.explore_destinations" defaultMessage="Khám phá các địa điểm thu hút khách du lịch" />
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -193,29 +209,34 @@ function HomePage() {
         {/* Tại Sao Chọn Booking */}
         <div className="mb-12 bg-[#f8f9fa] p-8 rounded-lg">
           <h2 className="text-2xl font-bold mb-6 text-center">
-            Tại Sao Chọn Booking
+            <FormattedMessage id="homepage.why_choose_booking" defaultMessage="Tại Sao Chọn Booking" />
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
               <FaCheckCircle className="text-[#febb02] text-4xl mb-4 justify-center" />
-              <h3 className="text-lg font-semibold">Lựa Chọn Tốt Nhất</h3>
+              <h3 className="text-lg font-semibold">
+                <FormattedMessage id="homepage.best_choices" defaultMessage="Lựa Chọn Tốt Nhất" />
+              </h3>
               <p className="text-gray-500">
-                Hợp tác với các khách sạn hàng đầu để đảm bảo chất lượng dịch
-                vụ.
+                <FormattedMessage id="homepage.best_choices_desc" defaultMessage="Hợp tác với các khách sạn hàng đầu để đảm bảo chất lượng dịch vụ." />
               </p>
             </div>
             <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
               <FaMapMarkerAlt className="text-[#febb02] text-4xl mb-4 justify-center" />
-              <h3 className="text-lg font-semibold">Vị Trí Thuận Tiện</h3>
+              <h3 className="text-lg font-semibold">
+                <FormattedMessage id="homepage.convenient_locations" defaultMessage="Vị Trí Thuận Tiện" />
+              </h3>
               <p className="text-gray-500">
-                Các khách sạn của chúng tôi nằm ở những vị trí đặc sắc.
+                <FormattedMessage id="homepage.convenient_locations_desc" defaultMessage="Các khách sạn của chúng tôi nằm ở những vị trí đặc sắc." />
               </p>
             </div>
             <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
               <FaStar className="text-[#febb02] text-4xl mb-4 justify-center" />
-              <h3 className="text-lg font-semibold">Đánh Giá Tin Cậy</h3>
+              <h3 className="text-lg font-semibold">
+                <FormattedMessage id="homepage.trustworthy_reviews" defaultMessage="Đánh Giá Tin Cậy" />
+              </h3>
               <p className="text-gray-500">
-                Đánh giá từ các khách hàng giúp bạn lựa chọn chính xác.
+                <FormattedMessage id="homepage.trustworthy_reviews_desc" defaultMessage="Đánh giá từ các khách hàng giúp bạn lựa chọn chính xác." />
               </p>
             </div>
           </div>
@@ -224,7 +245,7 @@ function HomePage() {
         {/* Khách Hàng Nói Gì */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-center">
-            Khách Hàng Nói Gì
+            <FormattedMessage id="homepage.customer_feedback" defaultMessage="Khách Hàng Nói Gì" />
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white shadow-md rounded-lg p-6">
