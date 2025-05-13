@@ -35,10 +35,18 @@ function Header() {
           Booking.com
         </Link>
         <div className="hidden md:flex items-center space-x-1 text-[20px]">
-          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Trang chủ</Link>
-          <Link to={"/home-list"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Khách sạn</Link>
-          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Điểm đến</Link>
-          <Link to={"/about-us"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Giới thiệu</Link>
+          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">
+            <FormattedMessage id="header.home" defaultMessage="Trang chủ" />
+          </Link>
+          <Link to={"/home-list"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">
+            <FormattedMessage id="header.hotels" defaultMessage="Khách sạn" />
+          </Link>
+          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">
+            <FormattedMessage id="header.destinations" defaultMessage="Điểm đến" />
+          </Link>
+          <Link to={"/about-us"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">
+            <FormattedMessage id="header.about" defaultMessage="Giới thiệu" />
+          </Link>
         </div>
         <div className="flex items-center space-x-3 relative dropdown-container">
           <Link
@@ -96,12 +104,12 @@ function Header() {
             </ul>
           </div>
 
-          <Link
+          {/* <Link
             className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3"
             to="/help"
           >
             <CircleHelp />
-          </Link>
+          </Link> */}
 
           <Link
             className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4 w-[100px] flex items-center justify-center"

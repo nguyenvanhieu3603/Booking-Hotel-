@@ -58,6 +58,9 @@ function Login() {
           <span className="text-gray-600">Chưa có tài khoản? </span>
           <Link to="/register" className="text-[#003b95] font-semibold hover:underline">Đăng ký</Link>
         </div>
+        <div className="mt-2 text-center text-sm">
+          <Link to="/forgot-password" className="text-[#003b95] font-semibold hover:underline">Quên mật khẩu?</Link>
+        </div>
       </div>
     </div>
   );
