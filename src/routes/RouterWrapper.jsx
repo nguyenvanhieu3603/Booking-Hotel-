@@ -1,50 +1,72 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import HomePage from '../page/HomePage';
-import LogIn from '../page/LogIn';
-import Register from '../page/Register';
-import ForgotPassword from '../page/ForgotPassword';
-import ResetPassword from '../page/ResetPassword';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import HomePage from "../page/HomePage";
+import LogIn from "../page/LogIn";
+import Register from "../page/Register";
+import ForgotPassword from "../page/ForgotPassword";
+import ResetPassword from "../page/ResetPassword";
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
+import HomeListPage from "../page/HotelListPage";
+import AboutUs from "../page/AboutUs";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: 
-      <>
-        <HomePage />
-        </>,
+      element: (
+        <>
+          <HomePage />
+        </>
+      ),
     },
     {
       path: "/login",
-      element: 
-      <PublicRoute>
-        <LogIn />
-        </PublicRoute>,
+      element: (
+        <PublicRoute>
+          <LogIn />
+        </PublicRoute>
+      ),
     },
     {
       path: "/register",
-      element: 
-      <PublicRoute>
-        <Register />
-      </PublicRoute>,
+      element: (
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      ),
     },
     {
       path: "/forgot-password",
-      element: 
-      <PublicRoute>
-        <ForgotPassword />
-        </PublicRoute>,
+      element: (
+        <PublicRoute>
+          <ForgotPassword />
+        </PublicRoute>
+      ),
     },
     {
       path: "/reset-password",
-      element: 
-      <PublicRoute>
-        <ResetPassword />
-        </PublicRoute>,
+      element: (
+        <PublicRoute>
+          <ResetPassword />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "/home-list",
+      element:(
+ 
+          <HomeListPage />
 
+      )
+    },
+    {
+      path: "/about-us",
+      element:(
+
+          <AboutUs />
+
+      )
     },
   ]);
 
