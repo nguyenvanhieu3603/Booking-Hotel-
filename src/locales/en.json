@@ -62,5 +62,9 @@
   "footer.about_us.press": "Press",
   "footer.about_us.careers": "Careers",
   "footer.about_us.investor_relations": "Investor Relations",
-  "footer.about_us.contact_company": "Contact the company"
+  "footer.about_us.contact_company": "Contact the company",
+  "header.home": "Home",
+  "header.hotels": "Hotels",
+  "header.destinations": "Destinations",
+  "header.about": "About"
 }

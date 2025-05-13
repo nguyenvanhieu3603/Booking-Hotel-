@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -36,43 +36,45 @@ function ResetPassword() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-      <div className="p-8 bg-white rounded-lg shadow-2xl w-96">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e0e7ef]">
+      <div className="p-8 bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Đặt lại mật khẩu</h1>
+          <h1 className="text-4xl font-extrabold text-[#003b95] mb-2">Đặt lại mật khẩu</h1>
+          <p className="text-gray-500">Vui lòng nhập mật khẩu mới cho tài khoản của bạn</p>
         </div>
         <form className="space-y-6" onSubmit={handleResetPassword}>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Mật khẩu mới</label>
+            <label className="block text-sm font-semibold text-[#003b95]">Mật khẩu mới</label>
             <input
               type="password"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Enter new password"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#febb02] focus:border-[#003b95] focus:outline-none"
+              placeholder="Nhập mật khẩu mới"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
+            <label className="block text-sm font-semibold text-[#003b95]">Xác nhận mật khẩu</label>
             <input
               type="password"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Confirm new password"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#febb02] focus:border-[#003b95] focus:outline-none"
+              placeholder="Nhập lại mật khẩu"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          {message && <p className="text-sm text-red-600">{message}</p>}
-          {message.includes('thành công') && <p className="text-sm text-green-600">{message}</p>}
+          {message && (
+            <p className={`text-sm ${message.includes('thành công') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>
+          )}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity"
+            className="w-full bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition"
           >
             Cập nhật mật khẩu
           </button>
         </form>
-        <div className="mt-6 flex justify-between text-sm">
-          <Link to="/login" className="text-blue-600 hover:underline">Quay lại đăng nhập</Link>
+        <div className="mt-6 text-center text-sm">
+          <Link to="/login" className="text-[#003b95] font-semibold hover:underline">Quay lại đăng nhập</Link>
         </div>
       </div>
     </div>
