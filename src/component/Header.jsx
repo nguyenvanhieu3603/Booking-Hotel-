@@ -34,6 +34,12 @@ function Header() {
         <Link to="/" className="text-2xl font-bold">
           Booking.com
         </Link>
+        <div className="hidden md:flex items-center space-x-1 text-[20px]">
+          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Trang chủ</Link>
+          <Link to={"/home-list"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Khách sạn</Link>
+          <Link to={"/"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Điểm đến</Link>
+          <Link to={"/about-us"} className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition">Giới thiệu</Link>
+        </div>
         <div className="flex items-center space-x-3 relative dropdown-container">
           <Link
             className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3"

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Header from '../component/Header';
 
 function HotelsPage() {
   const [priceRange, setPriceRange] = useState([50, 500]);
@@ -28,26 +29,7 @@ function HotelsPage() {
   return (
     <div className="bg-[#003b95] text-white min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        {/* Header giống HomePage */}
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-2xl font-bold">
-            Booking.com
-          </Link>
-          <div className="flex items-center space-x-3">
-            <Link className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3" to="/">
-              VNĐ
-            </Link>
-            <Link className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3" to="/help">
-              Hỗ trợ
-            </Link>
-            <Link className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4" to="/register">
-              Đăng ký
-            </Link>
-            <Link className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4" to="/login">
-              Đăng nhập
-            </Link>
-          </div>
-        </div>
+        <Header/>
 
         {/* Tiêu đề */}
         <h1 className="text-4xl font-bold text-center mb-4">Tìm Khách Sạn Lý Tưởng</h1>

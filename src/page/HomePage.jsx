@@ -6,7 +6,6 @@ import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl"; // Import FormattedMessage
-import Calendar from "react-calendar";
 
 function HomePage() {
   const intl = useIntl();
@@ -73,9 +72,10 @@ function HomePage() {
                     onChange={(e) =>
                       setGuests({ ...guests, adults: parseInt(e.target.value) })
                     }
-                    className="outline-none text-gray-700 bg-transparent cursor-pointer"
+                    className="outline-none text-gray-700 bg-transparent cursor-pointer min-w-[110px]"
+
                   >
-                    <option value={1}>
+                    <option value={1} className="">
                       <FormattedMessage id="homepage.one_guest" defaultMessage="1 Khách" />
                     </option>
                     <option value={2}>
