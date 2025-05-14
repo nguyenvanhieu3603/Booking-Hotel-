@@ -1,4 +1,3 @@
-
 export const hotels = [
   {
     id: "1",
@@ -117,5 +116,41 @@ export const testimonials = [
     rating: 5,
     comment: "Ana Mandara Huế thực sự làm tôi bất ngờ với kiến trúc độc đáo và dịch vụ chuyên nghiệp. Đồ ăn ngon, đặc biệt là các món đặc sản Huế.",
     date: "15 Tháng 4, 2025"
+  },
+  // --- Thêm mới 5 feedback ---
+  {
+    name: "Phạm Minh Châu",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    rating: 5,
+    comment: "Rex Hotel Sài Gòn có vị trí trung tâm, thuận tiện di chuyển. Nhân viên rất nhiệt tình, phòng sạch sẽ và tiện nghi.",
+    date: "10 Tháng 4, 2025"
+  },
+  {
+    name: "Đỗ Quang Huy",
+    avatar: "https://i.pravatar.cc/150?img=5",
+    rating: 4,
+    comment: "Phú Quốc Vinpearl Resort là nơi lý tưởng để nghỉ dưỡng cùng gia đình. Hồ bơi rộng, bãi biển đẹp và nhiều hoạt động giải trí.",
+    date: "05 Tháng 4, 2025"
+  },
+  {
+    name: "Ngô Thị Hạnh",
+    avatar: "https://i.pravatar.cc/150?img=6",
+    rating: 5,
+    comment: "Tôi rất hài lòng với dịch vụ của Booking Hotel. Đặt phòng nhanh chóng, giá tốt và nhiều ưu đãi hấp dẫn.",
+    date: "02 Tháng 4, 2025"
+  },
+  {
+    name: "Lý Văn Phúc",
+    avatar: "https://i.pravatar.cc/150?img=7",
+    rating: 4,
+    comment: "Khách sạn sạch sẽ, nhân viên thân thiện. Tôi sẽ giới thiệu cho bạn bè và người thân khi có dịp du lịch.",
+    date: "28 Tháng 3, 2025"
+  },
+  {
+    name: "Trịnh Thảo Vy",
+    avatar: "https://i.pravatar.cc/150?img=8",
+    rating: 5,
+    comment: "Dịch vụ tuyệt vời, thủ tục nhận phòng nhanh chóng. Tôi rất ấn tượng với sự chuyên nghiệp của đội ngũ nhân viên.",
+    date: "25 Tháng 3, 2025"
   }
 ];

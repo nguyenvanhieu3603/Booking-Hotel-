@@ -6,6 +6,10 @@ import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl"; // Import FormattedMessage
+import { testimonials } from "../data/mockData"; // Thêm dòng này
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function HomePage() {
   const intl = useIntl();
@@ -18,6 +22,27 @@ function HomePage() {
   const convertToUSD = (priceInVND) => {
     const exchangeRate = 26000; // 1 USD = 26,000 VND
     return (priceInVND / exchangeRate).toFixed(2);
+  };
+
+  // Slick slider settings
+  const feedbackSettings = {
+    dots: true,
+    infinite: true,
+    autoplay: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    arrows: false,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: { slidesToShow: 2 }
+      },
+      {
+        breakpoint: 640,
+        settings: { slidesToShow: 1 }
+      }
+    ]
   };
 
   return (
@@ -258,29 +283,32 @@ function HomePage() {
           <h2 className="text-2xl font-bold mb-6 text-center">
             <FormattedMessage id="homepage.customer_feedback" defaultMessage="Khách Hàng Nói Gì" />
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 italic">
-                "Kỳ nghỉ tuyệt vời tại khách sạn này! Căn phòng rất sạch sẽ,
-                nhân viên thân thiện và dịch vụ hoàn hảo. Chắc chắn sẽ quay
-                lại!"
-              </p>
-              <p className="text-right font-semibold mt-4">- Nguyễn Thị Mai</p>
-            </div>
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 italic">
-                "Mọi thứ hoàn hảo từ vị trí thuận tiện đến chất lượng dịch vụ.
-                Chắc chắn sẽ giới thiệu cho bạn bè!"
-              </p>
-              <p className="text-right font-semibold mt-4">- Trần Văn Nam</p>
-            </div>
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 italic">
-                "Khách sạn rất đẹp và tiện nghi. Nhân viên hỗ trợ nhiệt tình.
-                Rất hài lòng với kỳ nghỉ của mình!"
-              </p>
-              <p className="text-right font-semibold mt-4">- Lê Hoàng Anh</p>
-            </div>
+          <div>
+            <Slider {...feedbackSettings}>
+              {testimonials.map((item, idx) => (
+                <div key={idx} className="px-2">
+                  <div className="bg-white shadow-md rounded-lg p-6 flex flex-col h-full mx-2">
+                    <div className="flex items-center mb-4">
+                      <img src={item.avatar} alt={item.name} className="w-12 h-12 rounded-full mr-3 border" />
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <div className="flex items-center">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <FaStar
+                              key={i}
+                              className={i < item.rating ? "text-[#febb02]" : "text-gray-300"}
+                              size={16}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-500 italic flex-1">"{item.comment}"</p>
+                    <p className="text-right text-xs text-gray-400 mt-4">{item.date}</p>
+                  </div>
+                </div>
+              ))}
+            </Slider>
           </div>
         </div>
       </div>
