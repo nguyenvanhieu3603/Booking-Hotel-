@@ -1,4 +1,5 @@
 <?php
+require_once PROJECT_ROOT_PATH . "/inc/EmailService.php";
 class UserController extends BaseController
 {
     /**
@@ -6,6 +7,7 @@ class UserController extends BaseController
      */
     public function listAction()
     {
+        $this->handleCors(); // Thêm dòng này
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         $arrQueryStringParams = $this->getQueryStringParams();
@@ -48,6 +50,7 @@ class UserController extends BaseController
      */
     public function registerAction()
     {
+        $this->handleCors(); // Thêm dòng này
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -84,9 +87,26 @@ class UserController extends BaseController
                     $phone
                 );
                 
+                // Generate OTP
+                $otpCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                $userModel->storeOTP($userId, $otpCode);
+                
+                // Send OTP and welcome email
+                $emailService = new EmailService();
+                $emailSent = $emailService->sendOTP($requestData['email'], $otpCode);
+                
+                if (!$emailSent) {
+                    throw new Exception('User registered but failed to send OTP email. Please contact support.');
+                }
+                
+                // Send welcome email (async if possible)
+                $emailService->sendWelcomeEmail($requestData['email'], $requestData['fullName']);
+                
                 $responseData = json_encode([
                     'id' => $userId,
-                    'message' => 'User registered successfully'
+                    'message' => 'User registered successfully. Please check your email for OTP verification.',
+                    'requires_verification' => true,
+                    'success' => true
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
@@ -104,7 +124,10 @@ class UserController extends BaseController
             );
         } else {
             $this->sendOutput(
-                json_encode(array('error' => $strErrorDesc)),
+                json_encode([
+                    'success' => false,
+                    'error' => $strErrorDesc
+                ]),
                 array('Content-Type: application/json', $strErrorHeader)
             );
         }
@@ -115,6 +138,7 @@ class UserController extends BaseController
      */
     public function loginAction()
     {
+        $this->handleCors(); // Thêm dòng này
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -174,6 +198,7 @@ class UserController extends BaseController
      */
     public function profileAction()
     {
+        $this->handleCors(); // Thêm dòng này
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -222,6 +247,7 @@ class UserController extends BaseController
      */
     public function updateAction()
     {
+        $this->handleCors(); // Thêm dòng này
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
