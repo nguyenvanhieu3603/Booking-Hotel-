@@ -152,9 +152,8 @@ bookingBackend/
 ├── inc/
 │   ├── bootstrap.php
 │   ├── config.php
-│   ├── cors.php
 │   └── EmailService.php
-├── vendor/
+├── vendor/ (xuất hiện sau khi cài PHP mailer)
 │   └── ... (thư viện Composer)
 ├── index.php
 └── README.md
