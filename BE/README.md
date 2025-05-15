@@ -149,11 +149,6 @@ bookingBackend/
 ├── Model/
 │   ├── Database.php
 │   ├── UserModel.php
-│   ├── HotelModel.php
-│   ├── RoomModel.php
-│   ├── BookingModel.php
-│   ├── PaymentModel.php
-│   └── ReviewModel.php
 ├── inc/
 │   ├── bootstrap.php
 │   ├── config.php
