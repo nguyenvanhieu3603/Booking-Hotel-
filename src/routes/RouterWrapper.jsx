@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import HomePage from "../page/HomePage";
 import LogIn from "../page/LogIn";
 import Register from "../page/Register";
@@ -9,6 +9,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import HomeListPage from "../page/HotelListPage";
 import AboutUs from "../page/AboutUs";
+import HotelDetail from "../page/HotelDetail";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
@@ -16,10 +17,28 @@ function RouterWrapper() {
       path: "/",
       element: (
         <>
-          <HomePage />
+          <Outlet />
         </>
       ),
+      children: [
+        {
+          path: "",
+          element: <HomePage />,
+        },
+        {
+          path: "about-us",
+          element: <AboutUs />,
+        },
+        {
+          path: "/home-list",
+          element: <Outlet/>,
+          children: [
+            {path: "", element: <HomeListPage />},
+            {path: ":id", element: <HotelDetail />},]
+        },
+      ],
     },
+
     {
       path: "/login",
       element: (
@@ -51,22 +70,6 @@ function RouterWrapper() {
           <ResetPassword />
         </PublicRoute>
       ),
-    },
-    {
-      path: "/home-list",
-      element:(
- 
-          <HomeListPage />
-
-      )
-    },
-    {
-      path: "/about-us",
-      element:(
-
-          <AboutUs />
-
-      )
     },
   ]);
 
