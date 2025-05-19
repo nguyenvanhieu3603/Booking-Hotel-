@@ -497,9 +497,7 @@
 
 - **URL**: `http://localhost/bookingBackend/api/user/adminUpdate`
 
-- **Headers**:
 
-  - `Cookie: jwt=<token>`
 
 - **Body** (JSON):
 
@@ -563,9 +561,7 @@
 
 - **URL**: `http://localhost/bookingBackend/api/user/delete`
 
-- **Headers**:
 
-  - `Cookie: jwt=<token>`
 
 - **Body** (JSON):
 
