@@ -443,9 +443,7 @@
 
 - **URL**: `http://localhost/bookingBackend/api/user/list?limit=10`
 
-- **Headers**:
 
-  - `Cookie: jwt=<token>`
 
 - **Query Parameters**:
 
