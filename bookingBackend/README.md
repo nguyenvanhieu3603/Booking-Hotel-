@@ -258,9 +258,6 @@
 
 - **URL**: `http://localhost/bookingBackend/api/user/profile`
 
-- **Headers**:
-
-  - `Cookie: jwt=<token>`
 
 - **Body**: Không cần body.
 
