@@ -15,15 +15,7 @@
    - Clone hoặc giải nén mã nguồn vào thư mục `htdocs/bookingBackend`.
      <img src="img\Untitled.png" alt="Img" width="1000px"/>
 
-   - Cấu hình file `.htaccess`:
-     <img src="img\Untitled1.png" alt="htaccess" width="1000px"/>
-
-     ```apache
-     RewriteEngine On
-     RewriteCond %{REQUEST_FILENAME} !-f
-     RewriteCond %{REQUEST_FILENAME} !-d
-     RewriteRule ^api/(.*)$ /bookingBackend/index.php [QSA,L]
-     ```
+   
 
      - Cài đặt database:
 
