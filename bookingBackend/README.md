@@ -25,6 +25,12 @@
      RewriteRule ^api/(.*)$ /bookingBackend/index.php [QSA,L]
      ```
 
+     - Cài đặt database:
+
+     * Tạo database mới trong xampp,đặt tên hotel_booking
+     * Chọn tab SQL,paste toàn bộ nội dung trong hotel_booking (1).sql vào ,ấn Go
+       <img src="img\Untitled2.png" alt="htaccess" width="1000px"/>
+
 3. **Khởi động**:
 
    - Bật Apache và MySQL trong XAMPP.
