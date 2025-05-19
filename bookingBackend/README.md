@@ -144,7 +144,7 @@
   ```json
   {
     "email": "user@example.com",
-    "otpCode": "123456"
+    "otp": "123456"
   }
   ```
 
