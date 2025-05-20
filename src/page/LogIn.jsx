@@ -3,13 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AppContext } from '../context/ContextData';
 
-<<<<<<< Updated upstream
+
 function LogIn() {
   const { accountLogIn, setIsAuth } = useContext(AppContext);
-=======
-function Login() {
-  const { setIsAuth } = useContext(AppContext);
->>>>>>> Stashed changes
+
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -85,16 +82,13 @@ function Login() {
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <button
             type="submit"
-<<<<<<< Updated upstream
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Sign In
-=======
+
+
             disabled={isLoading}
             className="w-full bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition disabled:bg-gray-400"
           >
             {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
->>>>>>> Stashed changes
+
           </button>
         </form>
         <div className="mt-6 flex justify-between text-sm">
@@ -108,8 +102,8 @@ function Login() {
   );
 }
 
-<<<<<<< Updated upstream
+
+
+
 export default LogIn;
-=======
-export default Login;
->>>>>>> Stashed changes
+

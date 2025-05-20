@@ -1,7 +1,4 @@
-<<<<<<< Updated upstream:src/page/HotelsPage.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-=======
+
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -10,7 +7,7 @@ import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
->>>>>>> Stashed changes:src/page/HotelListPage.jsx
+
 
 function HotelListPage() {
   const intl = useIntl();
@@ -112,34 +109,11 @@ function HotelListPage() {
   ];
 
   return (
-<<<<<<< Updated upstream:src/page/HotelsPage.jsx
-    <div className="bg-[#003b95] text-white min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header giống HomePage */}
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-2xl font-bold">
-            Booking.com
-          </Link>
-          <div className="flex items-center space-x-3">
-            <Link className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3" to="/">
-              VNĐ
-            </Link>
-            <Link className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3" to="/help">
-              Hỗ trợ
-            </Link>
-            <Link className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4" to="/register">
-              Đăng ký
-            </Link>
-            <Link className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4" to="/login">
-              Đăng nhập
-            </Link>
-          </div>
-        </div>
-=======
+
     <div className="bg-gray-100 min-h-screen">
       {/* Header */}
       <Header />
->>>>>>> Stashed changes:src/page/HotelListPage.jsx
+
 
       {/* Main Content */}
       <div className="container mx-auto mt-12 px-4">

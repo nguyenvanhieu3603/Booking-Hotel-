@@ -8,35 +8,7 @@ import ResetPassword from '../page/ResetPassword';
 import HotelsPage from '../page/HotelsPage';
 function RouterWrapper() {
 
-<<<<<<< Updated upstream
     const router = createBrowserRouter([
-        {
-            path: "/",
-            element: <HomePage/>
-        },
-        {
-          path: "/login",
-          element: <LogIn/>
-        },
-        {
-          path: "/register",
-          element: <Register/>
-        },
-        {
-        path: "/forgot-password",
-        element: <ForgotPassword />,
-        },
-        {
-        path: "/reset-password",
-        element: <ResetPassword />,
-        },
-        {
-        path: "/hotels",
-        element: <HotelsPage />,
-        },
-        
-     ]);
-=======
     {
       path: "/login",
       element: (
@@ -70,7 +42,7 @@ function RouterWrapper() {
       ),
     },
   ]);
->>>>>>> Stashed changes
+
 
   return <RouterProvider router={router}/>
 }
