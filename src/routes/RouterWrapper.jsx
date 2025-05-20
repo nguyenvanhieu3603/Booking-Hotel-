@@ -8,6 +8,7 @@ import ResetPassword from '../page/ResetPassword';
 import HotelsPage from '../page/HotelsPage';
 function RouterWrapper() {
 
+<<<<<<< Updated upstream
     const router = createBrowserRouter([
         {
             path: "/",
@@ -35,6 +36,41 @@ function RouterWrapper() {
         },
         
      ]);
+=======
+    {
+      path: "/login",
+      element: (
+        // <PublicRoute>
+          <LogIn />
+        // </PublicRoute>
+      ),
+    },
+    {
+      path: "/register",
+      element: (
+        // <PublicRoute>
+          <Register />
+        // </PublicRoute>
+      ),
+    },
+    {
+      path: "/forgot-password",
+      element: (
+        // <PublicRoute>
+          <ForgotPassword />
+        /* </PublicRoute> */
+      ),
+    },
+    {
+      path: "/reset-password",
+      element: (
+        // <PublicRoute>
+          <ResetPassword />
+        /* </PublicRoute> */
+      ),
+    },
+  ]);
+>>>>>>> Stashed changes
 
   return <RouterProvider router={router}/>
 }

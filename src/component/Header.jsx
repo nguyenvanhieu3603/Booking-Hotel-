@@ -99,14 +99,14 @@ function Header() {
 
           <Link
             className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4 w-[100px] flex items-center justify-center"
-            to="/register"
+            to={"/register"}
           >
             <FormattedMessage id="app.register" defaultMessage="Register" />
           </Link>
 
           <Link
             className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg p-2 px-4 w-[110px] flex items-center justify-center"
-            to="/login"
+            to={"/login"}
           >
             <FormattedMessage id="app.login" defaultMessage="Login" />
           </Link>
