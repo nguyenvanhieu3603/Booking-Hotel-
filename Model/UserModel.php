@@ -48,4 +48,45 @@ class UserModel extends Database
     {
         return $this->delete("DELETE FROM users WHERE id = ?", ["i", $userId]);
     }
+    public function storeOTP($userId, $otpCode)
+    {
+        $expiresAt = date('Y-m-d H:i:s', time() + 300); // 5 phút
+        return $this->update(
+            "UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ?",
+            ["ssi", $otpCode, $expiresAt, $userId]
+        );
+    }
+
+    public function verifyOTP($email, $otpCode)
+    {
+        // Sửa lại query kiểm tra cả email và OTP
+        $user = $this->select(
+            "SELECT * 
+            FROM users 
+            WHERE email = ? 
+            AND otp_code = ? ",
+            ["ss", $email, $otpCode]
+        );
+        
+        if (!empty($user)) {
+            $this->update(
+                "UPDATE users 
+                SET is_verified = TRUE, 
+                    otp_code = NULL, 
+                    otp_expires_at = NULL 
+                WHERE email = ?",
+                ["s", $email]
+            );
+            return true;
+        }
+        return false;
+    }
+
+    public function markAsVerified($userId)
+    {
+        return $this->update(
+            "UPDATE users SET is_verified = TRUE WHERE id = ?",
+            ["i", $userId]
+        );
+    }
 }

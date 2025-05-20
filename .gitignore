@@ -1,2 +1,3 @@
-Dependency/vendor/
-.env
+main\.env
+vendor
+.vs/

@@ -1,0 +1,91 @@
+1. Kiến trúc tổng quan
+Hệ thống có cấu trúc MVC (Model-View-Controller) với các thành phần chính:
+
+index.php: Điểm vào chính, xử lý routing
+
+Controller: Xử lý logic nghiệp vụ (UserController, OTPController)
+
+Model: Tương tác với database (UserModel)
+
+Services: Các dịch vụ hỗ trợ (EmailService)
+
+2. Luồng OTP chính
+a. Đăng ký người dùng mới
+User gửi thông tin đăng ký qua endpoint /api/user/register
+
+Hệ thống kiểm tra email chưa tồn tại, tạo user mới
+
+Tạo mã OTP 6 chữ số ngẫu nhiên
+
+Lưu OTP vào database cùng thời gian hết hạn (5 phút)
+
+Gửi email chứa mã OTP tới người dùng
+
+b. Xác thực OTP
+User gửi mã OTP nhận được qua endpoint /api/otp/verify
+
+Hệ thống kiểm tra:
+
+OTP có khớp với email không
+
+OTP còn hiệu lực (chưa quá 5 phút)
+
+Nếu hợp lệ, đánh dấu user đã xác thực và xóa OTP khỏi database
+
+c. Gửi lại OTP
+User yêu cầu gửi lại OTP qua endpoint /api/otp/send
+
+Hệ thống tạo mã OTP mới và gửi email
+
+3. Các thành phần quan trọng
+a. UserModel.php
+Chứa các phương thức liên quan đến OTP:
+
+storeOTP(): Lưu mã OTP và thời gian hết hạn
+
+verifyOTP(): Xác thực OTP và đánh dấu email đã xác thực
+
+markAsVerified(): Đánh dấu user đã xác thực
+
+b. EmailService.php
+Sử dụng PHPMailer để gửi email:
+
+Cấu hình SMTP với Gmail
+
+Phương thức sendOTP() để gửi mã OTP
+
+Phương thức sendWelcomeEmail() để gửi email chào mừng
+
+c. OTPController.php
+Xử lý các yêu cầu liên quan đến OTP:
+
+sendAction(): Xử lý gửi OTP
+
+verifyAction(): Xử lý xác thực OTP
+
+4. Bảo mật
+Mật khẩu được băm bằng password_hash()
+
+OTP chỉ có hiệu lực trong 5 phút
+
+Kiểm tra kỹ các điều kiện trước khi xác thực
+
+Sử dụng App Password của Gmail thay vì mật khẩu chính
+
+5. Cơ sở dữ liệu
+Hệ thống giả định có bảng users với các trường liên quan đến OTP:
+
+otp_code: Lưu mã OTP
+
+otp_expires_at: Thời gian hết hạn OTP
+
+is_verified: Trạng thái xác thực email
+
+6. CORS và API
+Hỗ trợ CORS cho frontend ở http://localhost:5173
+
+API endpoints bắt đầu bằng /api
+
+Phản hồi JSON chuẩn với mã trạng thái HTTP phù hợp
+
+Hệ thống này cung cấp cơ chế xác thực email an toàn thông qua OTP, là bước quan trọng trong quy trình đăng ký và bảo mật tài khoản người dùng.
