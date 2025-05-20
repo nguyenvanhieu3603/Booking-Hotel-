@@ -135,6 +135,93 @@ Body (JSON):
   "otp": "123456"
 }
 ```
+### Quản lý khách sạn (User)
+
+#### Lấy danh sách khách sạn hoạt động
+
+```
+GET http://localhost/bookingBackend/api/hotel/list?limit=10
+```
+Body (JSON):
+````json
+[
+    {
+        "id": "hotel_id",
+        "name": "hotel_name",
+        "address": "hotel_address",
+        "description": "hotel_description",
+        "rating": "hotel_rating",
+        "active": "hotel_status",
+        "created_at": "hotel_create_date"
+    },
+    {
+        "id": "hotel_id",
+        "name": "hotel_name",
+        "address": "hotel_address",
+        "description": "hotel_description",
+        "rating": "hotel_rating",
+        "active": "hotel_status",
+        "created_at": "hotel_create_date"
+    }
+]
+````
+
+#### Xem chi tiết khách sạn
+
+```
+GET http://localhost/bookingBackend/api/hotel/get?id={Hotel_id}
+```
+Query Parameters:
+
+- `id`: ID của khách sạn cần lấy thông tin
+
+Body (JSON):
+
+```json
+{
+    "id": "hotel_id",
+    "name": "hotel_name",
+    "address": "hotel_address",
+    "description": "hotel_description",
+    "rating": "hotel_rating",
+    "active": "hotel_status",
+    "created_at": "hotel_create_date"
+}
+```
+### Quản lý khách sạn (Admin)
+#### Tạo khách sạn
+```
+POST http://localhost/bookingBackend/api/hotel/create
+```
+Body sent (JSON) :
+```json
+{
+    "name": "hotel_name",
+    "address": "hotel_address",
+    "description": "hotel_description",
+    "rating": "hotel_rating",
+}
+```
+
+
+Body return (JSON):
+```json
+{
+    "id": "hotel_id",
+    "message": "Hotel created successfully"
+}
+```
+#### Xóa/Ẩn khách sạn
+```
+GET http://localhost/bookingBackend/api/hotel/delete?id={hotel_id}
+```
+- `id`: ID của khách sạn cần chuyển trạng thái
+Body return (JSON):
+```json
+{
+    "message": "Hotel removed from active list successfully"
+}
+```
 
 ## Cấu trúc dự án
 
