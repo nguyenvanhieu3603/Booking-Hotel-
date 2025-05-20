@@ -42,33 +42,27 @@ function RouterWrapper() {
     {
       path: "/login",
       element: (
-        <PublicRoute>
           <LogIn />
-        </PublicRoute>
       ),
     },
     {
       path: "/register",
       element: (
-        <PublicRoute>
+        // <PublicRoute>
           <Register />
-        </PublicRoute>
+        /* </PublicRoute> */
       ),
     },
     {
       path: "/forgot-password",
       element: (
-        <PublicRoute>
           <ForgotPassword />
-        </PublicRoute>
       ),
     },
     {
       path: "/reset-password",
       element: (
-        <PublicRoute>
           <ResetPassword />
-        </PublicRoute>
       ),
     },
   ]);
