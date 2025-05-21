@@ -66,5 +66,6 @@
   "header.home": "Trang chủ",
   "header.hotels": "Khách sạn",
   "header.destinations": "Điểm đến",
-  "header.about": "Giới thiệu"
+  "header.about": "Giới thiệu",
+  "header.logout": "Đăng xuất"
 }

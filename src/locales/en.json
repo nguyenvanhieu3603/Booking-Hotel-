@@ -66,5 +66,6 @@
   "header.home": "Home",
   "header.hotels": "Hotels",
   "header.destinations": "Destinations",
-  "header.about": "About"
+  "header.about": "About",
+  "header.logout": "Log out"
 }
