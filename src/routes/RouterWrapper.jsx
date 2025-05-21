@@ -16,9 +16,9 @@ function RouterWrapper() {
     {
       path: "/",
       element: (
-        <>
+        // <ProtectedRoute>
           <Outlet />
-        </>
+        /* </ProtectedRoute> */
       ),
       children: [
         {
@@ -42,7 +42,9 @@ function RouterWrapper() {
     {
       path: "/login",
       element: (
+        <PublicRoute>
           <LogIn />
+       </PublicRoute> 
       ),
     },
     {
@@ -50,7 +52,7 @@ function RouterWrapper() {
       element: (
         // <PublicRoute>
           <Register />
-        /* </PublicRoute> */
+        // </PublicRoute> 
       ),
     },
     {

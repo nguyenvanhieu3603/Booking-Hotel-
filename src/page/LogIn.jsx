@@ -84,7 +84,7 @@ function LogIn() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition disabled:bg-gray-400"
+            className="w-full bg-[#febb02] text-white font-bold cursor-pointer py-2 px-4 rounded-lg hover:bg-[#e0a800] transition disabled:bg-gray-400"
           >
             {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
