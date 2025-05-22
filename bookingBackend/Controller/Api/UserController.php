@@ -18,19 +18,19 @@ class UserController extends BaseController
         $jwt = JWT::encode($payload, JWT_SECRET, 'HS256');
         
         setcookie('jwt', $jwt, [
-        'expires' => time() + (30 * 24 * 60 * 60),
-        'httponly' => true,
-        'secure' => $_SERVER['SERVER_NAME'] !== 'localhost',
-        'samesite' => 'Strict',
-        'path' => '/'
-    ]);
+            'expires' => time() + (30 * 24 * 60 * 60),
+            'httponly' => true,
+            'secure' => $_SERVER['SERVER_NAME'] !== 'localhost',
+            'samesite' => 'Strict',
+            'path' => '/'
+        ]);
         
         return $jwt;
     }
+
     public function listAction()
     {
         $this->handleCors();
-        $user = $this->authorizeAdmin();
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         $arrQueryStringParams = $this->getQueryStringParams();
@@ -262,13 +262,18 @@ class UserController extends BaseController
     public function profileAction()
     {
         $this->handleCors();
-        $user = $this->authenticate();
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 $userModel = new UserModel();
+                $user = $_REQUEST['authenticatedUser'] ?? null;
+                
+                if (!$user) {
+                    throw new Exception('Không tìm thấy thông tin người dùng');
+                }
+                
                 $arrUsers = $userModel->getUserById($user['id']);
                 
                 if (empty($arrUsers)) {
@@ -301,7 +306,6 @@ class UserController extends BaseController
     public function updateAction()
     {
         $this->handleCors();
-        $user = $this->authenticate();
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -309,14 +313,18 @@ class UserController extends BaseController
             try {
                 $userModel = new UserModel();
                 $requestData = $this->getRequestData();
+                $user = $_REQUEST['authenticatedUser'] ?? null;
                 
-                // Validate input
-                if (!isset($requestData['fullName']) || empty(trim($requestData['fullName']))) {
-                    throw new Exception('Vui lòng nhập họ và tên');
+                if (!$user) {
+                    throw new Exception('Không tìm thấy thông tin người dùng');
                 }
                 
-                if (!isset($requestData['phone']) || empty(trim($requestData['phone']))) {
-                    throw new Exception('Vui lòng nhập số điện thoại');
+                // Validate input
+                $requiredFields = ['fullName', 'phone'];
+                foreach ($requiredFields as $field) {
+                    if (!isset($requestData[$field]) || empty(trim($requestData[$field]))) {
+                        throw new Exception("Vui lòng nhập đầy đủ thông tin: $field");
+                    }
                 }
                 
                 if (!$this->validatePhone($requestData['phone'])) {
@@ -343,7 +351,7 @@ class UserController extends BaseController
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
-                $physiqueHeader = 'HTTP/1.1 400 Yêu Cầu Không Hợp Lệ';
+                $strErrorHeader = 'HTTP/1.1 400 Yêu Cầu Không Hợp Lệ';
             }
         } else {
             $strErrorDesc = 'Phương thức không được hỗ trợ';
@@ -366,7 +374,6 @@ class UserController extends BaseController
     public function adminUpdateAction()
     {
         $this->handleCors();
-        $admin = $this->authorizeAdmin();
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -395,11 +402,6 @@ class UserController extends BaseController
                 $existingUser = $userModel->getUserById($requestData['userId']);
                 if (empty($existingUser)) {
                     throw new Exception('Người dùng không tồn tại');
-                }
-                
-                // Prevent admin from updating another admin
-                if ($existingUser[0]['role'] === 'admin') {
-                    throw new Exception('Không được phép cập nhật thông tin của admin khác');
                 }
                 
                 // Update user
@@ -568,10 +570,10 @@ class UserController extends BaseController
             );
         }
     }
+
     public function deleteAction()
     {
         $this->handleCors();
-        $admin = $this->authorizeAdmin();
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         
@@ -589,16 +591,6 @@ class UserController extends BaseController
                 $existingUser = $userModel->getUserById($requestData['userId']);
                 if (empty($existingUser)) {
                     throw new Exception('Người dùng không tồn tại');
-                }
-                
-                // Prevent admin from deleting themselves
-                if ($existingUser[0]['id'] === $admin['id']) {
-                    throw new Exception('Không được phép xóa chính mình');
-                }
-                
-                // Prevent admin from deleting another admin
-                if ($existingUser[0]['role'] === 'admin') {
-                    throw new Exception('Không được phép xóa admin khác');
                 }
                 
                 // Delete user
@@ -633,6 +625,5 @@ class UserController extends BaseController
             );
         }
     }
-
 }
 ?>

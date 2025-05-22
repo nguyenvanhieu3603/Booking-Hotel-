@@ -4,7 +4,7 @@ require_once PROJECT_ROOT_PATH . "/inc/vendor/autoload.php";
 
 class BaseController
 {
-    public function __callperiment($name, $arguments)
+    public function __call($name, $arguments)
     {
         $this->sendOutput('', array('HTTP/1.1 404 Không Tìm Thấy'));
     }
@@ -50,13 +50,11 @@ class BaseController
 
     protected function validatePassword($password)
     {
-        // Ít nhất 8 ký tự, có chữ hoa, chữ thường, số, ký tự đặc biệt
         return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password);
     }
 
     protected function validatePhone($phone)
     {
-        // Định dạng số điện thoại Việt Nam: bắt đầu bằng 03, 05, 07, 08, 09, theo sau là 8 số
         return preg_match('/^(03|05|07|08|09)[0-9]{8}$/', $phone);
     }
 
@@ -71,49 +69,6 @@ class BaseController
             header("HTTP/1.1 200 OK");
             exit();
         }
-    }
-
-    protected function authenticate()
-    {
-        $this->handleCors();
-        $jwt = $_COOKIE['jwt'] ?? null;
-
-        if (!$jwt) {
-            $this->sendOutput(
-                json_encode(['error' => 'Không có token xác thực']),
-                ['Content-Type: application/json', 'HTTP/1.1 401 Không Được Phép']
-            );
-        }
-
-        try {
-            require_once PROJECT_ROOT_PATH . "/inc/vendor/autoload.php";
-            $decoded = \Firebase\JWT\JWT::decode($jwt, new \Firebase\JWT\Key(JWT_SECRET, 'HS256'));
-            $userModel = new UserModel();
-            $user = $userModel->getUserById($decoded->userId);
-
-            if (empty($user)) {
-                throw new Exception('Người dùng không tồn tại');
-            }
-
-            return $user[0];
-        } catch (Exception $e) {
-            $this->sendOutput(
-                json_encode(['error' => 'Token không hợp lệ: ' . $e->getMessage()]),
-                ['Content-Type: application/json', 'HTTP/1.1 401 Không Được Phép']
-            );
-        }
-    }
-
-    protected function authorizeAdmin()
-    {
-        $user = $this->authenticate();
-        if ($user['role'] !== 'admin') {
-            $this->sendOutput(
-                json_encode(['error' => 'Không có quyền admin']),
-                ['Content-Type: application/json', 'HTTP/1.1 403 Cấm']
-            );
-        }
-        return $user;
     }
 }
 ?>
