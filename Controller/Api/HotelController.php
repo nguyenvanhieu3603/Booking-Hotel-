@@ -13,16 +13,16 @@ class HotelController extends BaseController
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 $hotelModel = new HotelModel();
-                
+
                 $intLimit = 10;
                 if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                     $intLimit = $arrQueryStringParams['limit'];
                 }
-                
+
                 $arrHotels = $hotelModel->getHotels($intLimit);
                 $responseData = json_encode($arrHotels);
             } catch (Exception $e) {
-                $strErrorDesc = $e->getMessage().' Something went wrong! Please contact support.';
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
                 $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
             }
         } else {
@@ -50,25 +50,44 @@ class HotelController extends BaseController
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
-        
+
         if (strtoupper($requestMethod) == 'POST') {
             try {
                 $hotelModel = new HotelModel();
-                $requestData = $this->getRequestData();
-                
+                $requestData = $_POST;  
+
                 if (!isset($requestData['name']) || !isset($requestData['address'])) {
                     throw new Exception('Missing required fields: name, address');
                 }
-                
+
                 $hotelId = $hotelModel->createHotel(
                     $requestData['name'],
                     $requestData['address'],
                     $requestData['description'] ?? null,
                     $requestData['rating'] ?? 0.0
                 );
-                
+
+                $imagePaths = [];
+                if (!empty($_FILES['images'])) {
+                    $uploadDir = 'uploads/';
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+
+                    foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
+                        $originalName = basename($_FILES['images']['name'][$index]);
+                        $targetPath = $uploadDir . time() . '_' . $originalName;
+
+                        if (move_uploaded_file($tmpName, $targetPath)) {
+                            $hotelModel->addHotelImage($hotelId, $targetPath);
+                            $imagePaths[] = $targetPath;
+                        }
+                    }
+                }
+
                 $responseData = json_encode([
                     'id' => $hotelId,
+                    'images' => $imagePaths,
                     'message' => 'Hotel created successfully'
                 ]);
             } catch (Exception $e) {
@@ -100,21 +119,21 @@ class HotelController extends BaseController
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
-        
+
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 if (!isset($_GET['id'])) {
                     throw new Exception('Hotel ID is required');
                 }
-                
+
                 $hotelId = $_GET['id'];
                 $hotelModel = new HotelModel();
                 $arrHotels = $hotelModel->getHotelById($hotelId);
-                
+
                 if (empty($arrHotels)) {
                     throw new Exception('Hotel not found');
                 }
-                
+
                 $responseData = json_encode($arrHotels[0]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
@@ -144,17 +163,26 @@ class HotelController extends BaseController
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
-        
+
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 if (!isset($_GET['id'])) {
                     throw new Exception('Hotel ID is required');
                 }
-                
+
                 $hotelId = $_GET['id'];
                 $hotelModel = new HotelModel();
+
+                $hotel = $hotelModel->getHotelById($hotelId);
+                if (!$hotel) {
+                    throw new Exception("Hotel with ID $hotelId not found");
+                }
+                if ($hotel[0]['active'] == 1) {
+                    throw new Exception("Hotel with ID $hotelId is already deleted");
+                }
+
                 $hotelModel->deleteHotel($hotelId);
-                
+
                 $responseData = json_encode([
                     'message' => 'Hotel removed from active list successfully'
                 ]);
@@ -182,19 +210,20 @@ class HotelController extends BaseController
     /**
      * "/hotel/update" Endpoint 
      */
-    public function updateAction(){
+    public function updateAction()
+    {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
-        
+
         if (strtoupper($requestMethod) == 'POST') {
             try {
                 if (!isset($_POST['id'])) {
                     throw new Exception('Hotel ID is required');
                 }
-                
+
                 $hotelId = $_POST['id'];
                 $hotelModel = new HotelModel();
-                
+
                 $hotelModel->updateHotel(
                     $hotelId,
                     $_POST['name'],
@@ -202,7 +231,7 @@ class HotelController extends BaseController
                     $_POST['description'] ?? null,
                     $_POST['rating'] ?? 0.0
                 );
-                
+
                 $responseData = json_encode([
                     'message' => 'Hotel updated successfully'
                 ]);

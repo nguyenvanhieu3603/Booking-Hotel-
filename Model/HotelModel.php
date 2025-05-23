@@ -9,7 +9,7 @@ class HotelModel extends Database
     }
 
     public function getHotelById($hotelId)
-    {//Only active hotels
+    { //Only active hotels
         return $this->select("SELECT * FROM hotels WHERE id = ? AND active != 1", ["i", $hotelId]);
     }
 
@@ -39,5 +39,13 @@ class HotelModel extends Database
     public function deleteHotel($hotelId)
     {
         return $this->update("UPDATE hotels SET active = 1 WHERE id = ?", ["i", $hotelId]);
+    }
+    
+    public function addHotelImage($hotelId, $imagePath)
+    {
+        return $this->insert(
+            "INSERT INTO hotel_images (hotel_id, image_url) VALUES (?, ?)",
+            ["is", $hotelId, $imagePath]
+        );
     }
 }
