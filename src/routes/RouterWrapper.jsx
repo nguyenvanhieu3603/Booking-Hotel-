@@ -5,21 +5,21 @@ import LogIn from "../page/LogIn";
 import Register from "../page/Register";
 import ForgotPassword from "../page/ForgotPassword";
 import ResetPassword from "../page/ResetPassword";
-import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import HomeListPage from "../page/HotelListPage";
 import AboutUs from "../page/AboutUs";
 import HotelDetail from "../page/HotelDetail";
+import AdminDashboard from "../page/AdminDashboard";
+import ManageUsers from "../component/ManageUsers";
+import ManageHotels from "../component/ManageHotels";
+import ManageBookings from "../component/ManageBookings";
+import AdminProfile from "../component/AdminProfile";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: (
-        // <ProtectedRoute>
-          <Outlet />
-        /* </ProtectedRoute> */
-      ),
+      element: <Outlet />,
       children: [
         {
           path: "",
@@ -31,41 +31,44 @@ function RouterWrapper() {
         },
         {
           path: "/home-list",
-          element: <Outlet/>,
+          element: <Outlet />,
           children: [
-            {path: "", element: <HomeListPage />},
-            {path: ":id", element: <HotelDetail />},]
+            { path: "", element: <HomeListPage /> },
+            { path: ":id", element: <HotelDetail /> },
+          ],
+        },
+        {
+          path: "admin",
+          element: <Outlet />,
+          children: [
+            { path: "dashboard", element: <AdminDashboard /> },
+            { path: "users", element: <ManageUsers /> },
+            { path: "hotels", element: <ManageHotels /> },
+            { path: "bookings", element: <ManageBookings /> },
+            { path: "profile", element: <AdminProfile /> },
+          ],
         },
       ],
     },
-
     {
       path: "/login",
       element: (
         <PublicRoute>
           <LogIn />
-       </PublicRoute> 
+        </PublicRoute>
       ),
     },
     {
       path: "/register",
-      element: (
-        // <PublicRoute>
-          <Register />
-        // </PublicRoute> 
-      ),
+      element: <Register />,
     },
     {
       path: "/forgot-password",
-      element: (
-          <ForgotPassword />
-      ),
+      element: <ForgotPassword />,
     },
     {
       path: "/reset-password",
-      element: (
-          <ResetPassword />
-      ),
+      element: <ResetPassword />,
     },
   ]);
 
