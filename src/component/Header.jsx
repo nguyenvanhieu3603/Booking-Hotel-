@@ -104,7 +104,7 @@ function Header() {
               ) : profileError ? (
                 <div className="text-red-600">{profileError}</div>
               ) : profile ? (
-                <div className="space-y-2 text-[#003b95]">
+                <div className="space-y-2 text-[#003b95] ">
                   <div>
                     <b>ID:</b> {profile.id}
                   </div>

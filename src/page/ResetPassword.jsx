@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import axios from 'axios';
 
 function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -7,15 +8,12 @@ function ResetPassword() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token'); // Giả lập token từ liên kết
+  const token = searchParams.get('token'); // Lấy token từ liên kết
 
-  const handleResetPassword = (e) => {
+
+  const handleResetPassword = async (e) => {
+    console.log("token", token);
     e.preventDefault();
-    // Kiểm tra token hết hạn hoặc không hợp lệ (giả lập)
-    if (!token) {
-      setMessage('Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng gửi lại yêu cầu!');
-      return;
-    }
 
     // Kiểm tra độ mạnh mật khẩu
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -30,9 +28,33 @@ function ResetPassword() {
       return;
     }
 
-    // Giả lập cập nhật mật khẩu thành công (thay bằng API call thực tế)
-    setMessage('Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.');
-    setTimeout(() => navigate('/login'), 2000); // Chuyển hướng sau 2 giây
+    // Kiểm tra token
+    if (!token) {
+      setMessage('Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng gửi lại yêu cầu!');
+      return;
+    }
+
+    // Gọi API reset password bằng axios
+    try {
+      const response = await axios.post('http://localhost/bookingBackend/api/user/resetpassword', {
+        token,
+        password,
+        confirmPassword,
+      });
+      const data = response.data;
+      if (data.success) {
+        setMessage(data.message || 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setMessage(data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      setMessage(
+        
+        error.response?.data?.message ||
+        'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.'
+      );
+    }
   };
 
   return (
