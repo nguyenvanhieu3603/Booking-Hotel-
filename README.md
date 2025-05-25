@@ -152,7 +152,10 @@ Body (JSON):
         "description": "hotel_description",
         "rating": "hotel_rating",
         "active": "hotel_status",
-        "created_at": "hotel_create_date"
+        "created_at": "hotel_create_date",
+        "images": [
+            "image_link"
+        ]
     },
     {
         "id": "hotel_id",
@@ -161,7 +164,10 @@ Body (JSON):
         "description": "hotel_description",
         "rating": "hotel_rating",
         "active": "hotel_status",
-        "created_at": "hotel_create_date"
+        "created_at": "hotel_create_date",
+        "images": [
+            "image_link"
+        ]
     }
 ]
 ````
@@ -185,7 +191,10 @@ Body (JSON):
     "description": "hotel_description",
     "rating": "hotel_rating",
     "active": "hotel_status",
-    "created_at": "hotel_create_date"
+    "created_at": "hotel_create_date",
+    "images": [
+        "hotel_image_links"
+    ]
 }
 ```
 ### Quản lý khách sạn (Admin)
@@ -193,35 +202,103 @@ Body (JSON):
 ```
 POST http://localhost/bookingBackend/api/hotel/create
 ```
-Body sent (JSON) :
-```json
-{
-    "name": "hotel_name",
-    "address": "hotel_address",
-    "description": "hotel_description",
-    "rating": "hotel_rating",
-}
-```
 
+content-type: multipart/form-data
+
+Body sent (form-data) :
+```
+| Key           | Type     | Required | Value                                  |
+| ------------- | -------- | -------- | ---------------------------------------|
+| `name`        | `text`   |   Yes    | Name of the hotel                      |
+| `address`     | `text`   |   Yes    | Address of the hotel                   |
+| `description` | `text`   |   No     | Description of the hotel               |
+| `rating`      | `text`   |   No     | Rating (0.0 - 5.0)                     |
+| `images[]`    | `file`   |   No     | Image files (optional uploads)         |
+| `images[]`    | `file`   |   No     | Image files (optional uploads)         | 
+```
 
 Body return (JSON):
 ```json
 {
-    "id": "hotel_id",
+    "id": "hotel id",
+    "images": [
+        "image_link",
+        "image_link"
+    ],
     "message": "Hotel created successfully"
 }
 ```
+
 #### Xóa/Ẩn khách sạn
 ```
 GET http://localhost/bookingBackend/api/hotel/delete?id={hotel_id}
 ```
+
+Query Parameters:
 - `id`: ID của khách sạn cần chuyển trạng thái
+
 Body return (JSON):
 ```json
 {
     "message": "Hotel removed from active list successfully"
 }
 ```
+
+
+#### Sửa khách sạn
+```
+POST http://localhost/bookingBackend/api/hotel/update
+```
+content-type: multipart/form-data
+
+Body sent (form-data) :
+```
+| Key           | Type     | Required | Value                                  |
+| ------------- | -------- | -------- | ---------------------------------------|
+| `name`        | `text`   |   Yes    | Name of the hotel                      |
+| `name`        | `text`   |   Yes    | Name of the hotel                      |
+| `address`     | `text`   |   Yes    | Address of the hotel                   |
+| `description` | `text`   |   No     | Description of the hotel               |
+| `rating`      | `text`   |   No     | Rating (0.0 - 5.0)                     |
+| `images[]`    | `file`   |   No     | Image files added(optional uploads)    | 
+```
+
+Body return (JSON):
+```json
+{
+    "message": "Hotel updated successfully",
+    "images_added": [
+        "image_link"
+    ]
+}
+```
+
+### Quản lý phòng (Admin)
+### Lấy danh sách phòng (Admin)
+
+```
+GET http://localhost/bookingBackend/api/room/list?hotelId={hotel_id}
+```
+
+Query Parameters:
+- `id`: ID của khách sạn cần lấy danh sách phòng
+
+Body return (JSON):
+```json
+[
+  {
+        "id": "room_id",
+        "hotelId": "hotel_id",
+        "name": "room_name",
+        "room_type": "room_type",
+        "price": "price",
+        "quantity": "quantity",
+        "amenities": "amenities",
+        "created_at": "created_at"
+    },
+]    
+```
+
 
 ## Cấu trúc dự án
 
