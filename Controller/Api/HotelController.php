@@ -14,12 +14,26 @@ class HotelController extends BaseController
             try {
                 $hotelModel = new HotelModel();
 
-                $intLimit = 10;
+                $intLimit = 15;
                 if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                     $intLimit = $arrQueryStringParams['limit'];
                 }
 
                 $arrHotels = $hotelModel->getHotels($intLimit);
+
+                // Add hotel images to each hotel
+                foreach ($arrHotels as &$hotel) {
+                    $images = $hotelModel->getImagesByHotelId($hotel['id']);
+
+                    // If no images found, add default
+                    if (empty($images)) {
+                        $hotel['images'] = ['uploads/default_hotel.png'];
+                    } else {
+                        // Convert flat image_url results to array
+                        $hotel['images'] = array_column($images, 'image_url');
+                    }
+                }
+
                 $responseData = json_encode($arrHotels);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
@@ -54,7 +68,7 @@ class HotelController extends BaseController
         if (strtoupper($requestMethod) == 'POST') {
             try {
                 $hotelModel = new HotelModel();
-                $requestData = $_POST;  
+                $requestData = $_POST;
 
                 if (!isset($requestData['name']) || !isset($requestData['address'])) {
                     throw new Exception('Missing required fields: name, address');
@@ -134,7 +148,16 @@ class HotelController extends BaseController
                     throw new Exception('Hotel not found');
                 }
 
-                $responseData = json_encode($arrHotels[0]);
+                $hotelData = $arrHotels[0];
+
+                $hotelImages = $hotelModel->getImagesByHotelId($hotelId);
+                if (empty($hotelImages)) {
+                    $hotelData['images'] = ['uploads/default-hotel.jpg']; // 🖼️ Default image path
+                } else {
+                    $hotelData['images'] = array_column($hotelImages, 'image_url');
+                }
+
+                $responseData = json_encode($hotelData);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
                 $strErrorHeader = 'HTTP/1.1 404 Not Found';
@@ -220,6 +243,9 @@ class HotelController extends BaseController
                 if (!isset($_POST['id'])) {
                     throw new Exception('Hotel ID is required');
                 }
+                if (!isset($_POST['name']) || !isset($_POST['address'])) {
+                    throw new Exception('Missing required fields: name, address');
+                }
 
                 $hotelId = $_POST['id'];
                 $hotelModel = new HotelModel();
@@ -232,8 +258,27 @@ class HotelController extends BaseController
                     $_POST['rating'] ?? 0.0
                 );
 
+                $imagePaths = [];
+                if (!empty($_FILES['images'])) {
+                    $uploadDir = 'uploads/';
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+
+                    foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
+                        $originalName = basename($_FILES['images']['name'][$index]);
+                        $targetPath = $uploadDir . time() . '_' . $originalName;
+
+                        if (move_uploaded_file($tmpName, $targetPath)) {
+                            $hotelModel->addHotelImage($hotelId, $targetPath);
+                            $imagePaths[] = $targetPath;
+                        }
+                    }
+                }
+
                 $responseData = json_encode([
-                    'message' => 'Hotel updated successfully'
+                    'message' => 'Hotel updated successfully',
+                    'images_added' => $imagePaths
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();

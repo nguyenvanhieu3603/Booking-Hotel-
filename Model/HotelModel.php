@@ -40,12 +40,19 @@ class HotelModel extends Database
     {
         return $this->update("UPDATE hotels SET active = 1 WHERE id = ?", ["i", $hotelId]);
     }
-    
+
     public function addHotelImage($hotelId, $imagePath)
     {
         return $this->insert(
             "INSERT INTO hotel_images (hotel_id, image_url) VALUES (?, ?)",
             ["is", $hotelId, $imagePath]
+        );
+    }
+    public function getImagesByHotelId($hotelId)
+    {
+        return $this->select(
+            "SELECT image_url FROM hotel_images WHERE hotel_id = ?",
+            ["i", $hotelId]
         );
     }
 }
