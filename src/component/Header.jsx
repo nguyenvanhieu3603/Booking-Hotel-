@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
@@ -16,6 +16,7 @@ function Header() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
   const { setLocale, locale, isAuth, setIsAuth } = useContext(AppContext);
+  const navigate = useNavigate(); // Thêm useNavigate để điều hướng
 
   const handleClickOutside = (event) => {
     if (!event.target.closest(".dropdown-container")) {
@@ -36,10 +37,9 @@ function Header() {
       );
       if (res.data.success) {
         localStorage.clear();
-        setIsAuth(false); // Thêm dòng này để cập nhật trạng thái đăng nhập
+        setIsAuth(false);
       }
     } catch (error) {
-      // Có thể xử lý lỗi nếu cần
       error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
@@ -48,7 +48,6 @@ function Header() {
   };
 
   const handleUserIconClick = async () => {
-    setShowProfileModal(true);
     setProfileLoading(true);
     setProfileError("");
     try {
@@ -57,6 +56,12 @@ function Header() {
         { withCredentials: true }
       );
       setProfile(res.data);
+      // Kiểm tra vai trò của người dùng
+      if (res.data.role === "admin") {
+        navigate("/admin/dashboard"); // Chuyển hướng đến admin dashboard nếu là admin
+      } else {
+        setShowProfileModal(true); // Hiển thị modal nếu là user
+      }
     } catch (err) {
       setProfileError(
         err.response?.data?.error ||
@@ -64,6 +69,7 @@ function Header() {
           err.message ||
           "Có lỗi xảy ra. Vui lòng thử lại."
       );
+      setShowProfileModal(true); // Hiển thị modal với thông báo lỗi nếu gọi API thất bại
     } finally {
       setProfileLoading(false);
     }
@@ -83,12 +89,13 @@ function Header() {
         <>
           {/* Overlay làm mờ toàn bộ màn hình */}
           <div
-          onClick={() => setShowProfileModal(false)}
-          className="fixed inset-0 z-40 bg-[#ccc] opacity-50"></div>
-          <div 
-          onClick={(e) => e.stopPropagation()}
-          // Ngăn chặn sự kiện click từ overlay truyền vào modal
-          className="fixed inset-0 z-50 flex items-center justify-center">
+            onClick={() => setShowProfileModal(false)}
+            className="fixed inset-0 z-40 bg-[#ccc] opacity-50"
+          ></div>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm relative">
               <button
                 className="absolute top-2 right-4 cursor-pointer text-gray-500 text-2xl hover:text-gray-800"
@@ -187,7 +194,6 @@ function Header() {
               type="button"
             >
               <FaUserCircle />
-              {/* Nếu không dùng react-icons thì thay bằng: <span style={{fontSize: 28}}>👤</span> */}
             </button>
           )}
           <div
@@ -231,16 +237,8 @@ function Header() {
             </ul>
           </div>
 
-          {/* <Link
-            className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3"
-            to="/help"
-          >
-            <CircleHelp />
-          </Link> */}
-
           {isAuth ? (
             <button
-              // to={"/login"}
               className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg cursor-pointer p-2 px-4 w-[110px] flex items-center justify-center"
               onClick={handleLogout}
             >
