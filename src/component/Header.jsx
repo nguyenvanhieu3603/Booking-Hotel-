@@ -6,22 +6,14 @@ import { FaUserCircle } from "react-icons/fa";
 
 import VietNamFlag from "../assets/img/VietNam.png";
 import AmericaFlag from "../assets/img/America.png";
-import CircleHelp from "../assets/icon/CircleHelp";
 import { AppContext } from "../context/ContextData";
 
 function Header() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profile, setProfile] = useState(null);
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileError, setProfileError] = useState("");
   const { setLocale, locale, isAuth, setIsAuth } = useContext(AppContext);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleClickOutside = (event) => {
-    if (!event.target.closest(".dropdown-container")) {
-      setIsDropdownVisible(false);
-    }
-  };
+
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -47,88 +39,16 @@ function Header() {
     }
   };
 
-  const handleUserIconClick = async () => {
-    setShowProfileModal(true);
-    setProfileLoading(true);
-    setProfileError("");
-    try {
-      const res = await axios.get(
-        "http://localhost/bookingBackend/api/user/profile",
-        { withCredentials: true }
-      );
-      setProfile(res.data);
-    } catch (err) {
-      setProfileError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message ||
-          "Có lỗi xảy ra. Vui lòng thử lại."
-      );
-    } finally {
-      setProfileLoading(false);
-    }
-  };
+
+  
 
   useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
+    const objectUser = JSON.parse(localStorage.getItem("user"));
+    objectUser.role === "admin" ? setIsAdmin(true) : setIsAdmin(false);
   }, []);
 
   return (
     <div className="container mx-auto">
-      {/* Profile Modal */}
-      {showProfileModal && (
-        <>
-          {/* Overlay làm mờ toàn bộ màn hình */}
-          <div
-          onClick={() => setShowProfileModal(false)}
-          className="fixed inset-0 z-40 bg-[#ccc] opacity-50"></div>
-          <div 
-          onClick={(e) => e.stopPropagation()}
-          // Ngăn chặn sự kiện click từ overlay truyền vào modal
-          className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm relative">
-              <button
-                className="absolute top-2 right-4 cursor-pointer text-gray-500 text-2xl hover:text-gray-800"
-                onClick={() => setShowProfileModal(false)}
-              >
-                &times;
-              </button>
-              <h2 className="text-xl font-bold mb-4 text-[#003b95] flex items-center gap-2">
-                <FaUserCircle className="text-2xl" /> Thông tin cá nhân
-              </h2>
-              {profileLoading ? (
-                <div>Đang tải...</div>
-              ) : profileError ? (
-                <div className="text-red-600">{profileError}</div>
-              ) : profile ? (
-                <div className="space-y-2 text-[#003b95] ">
-                  <div>
-                    <b>ID:</b> {profile.id}
-                  </div>
-                  <div>
-                    <b>Họ tên:</b> {profile.fullName}
-                  </div>
-                  <div>
-                    <b>Email:</b> {profile.email}
-                  </div>
-                  <div>
-                    <b>Số điện thoại:</b> {profile.phone}
-                  </div>
-                  <div>
-                    <b>Vai trò:</b> {profile.role}
-                  </div>
-                  <div>
-                    <b>Ngày tạo:</b> {profile.createdAt}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </>
-      )}
       <div className="flex justify-between items-center py-4">
         <Link to="/" className="text-2xl font-bold">
           Booking.com
@@ -178,17 +98,18 @@ function Header() {
               onClick={toggleDropdown}
             />
           </div>
-          {isAuth && (
-            <button
-              className="flex items-center justify-center text-[#003b95] text-2xl cursor-pointer mr-4 mx-1 focus:outline-none"
+          {isAdmin && (
+            <Link
+            to={"/dashboard"}
+              className="flex items-center justify-center text-[#818080] text-2xl cursor-pointer mr-4 mx-1 focus:outline-none"
               style={{ background: "none", border: "none" }}
-              onClick={handleUserIconClick}
+              // onClick={handleUserIconClick}
               title="Thông tin cá nhân"
               type="button"
             >
               <FaUserCircle />
               {/* Nếu không dùng react-icons thì thay bằng: <span style={{fontSize: 28}}>👤</span> */}
-            </button>
+            </Link>
           )}
           <div
             className={`absolute top-[49px] bg-[#f5f1f1] rounded-lg p-3 transition-all duration-500 ease-in-out overflow-hidden shadow-lg transform ${
