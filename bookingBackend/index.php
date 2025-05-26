@@ -2,6 +2,7 @@
 require __DIR__ . "/inc/cors.php";
 require __DIR__ . "/inc/bootstrap.php";
 require __DIR__ . "/inc/AuthMiddleware.php";
+require __DIR__ . "/inc/CheckIdMiddleware.php";
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode('/', $uri);
@@ -56,15 +57,86 @@ $routes = [
             'middleware' => ['AuthMiddleware::authorizeAdmin']
         ],
         'get' => [
-            'method' => 'GET'
+            'method' => 'GET',
+            'middleware' => ['CheckIdMiddleware::checkHotelId']
         ],
         'delete' => [
             'method' => 'DELETE',
+            'middleware' => ['AuthMiddleware::authorizeAdmin', 'CheckIdMiddleware::checkHotelId']
+        ],
+        'update' => [
+            'method' => 'PUT',
+            'middleware' => ['AuthMiddleware::authorizeAdmin', 'CheckIdMiddleware::checkHotelId']
+        ]
+    ],
+    'room' => [
+        'list' => [
+            'method' => 'GET',
+            'middleware' => ['CheckIdMiddleware::checkHotelId']
+        ],
+        'availability' => [
+            'method' => 'GET',
+            'middleware' => ['CheckIdMiddleware::checkRoomId']
+        ],
+        'create' => [
+            'method' => 'POST',
+            'middleware' => ['AuthMiddleware::authorizeAdmin', 'CheckIdMiddleware::checkHotelId']
+        ]
+    ],
+    'booking' => [
+        'create' => [
+            'method' => 'POST',
+            'middleware' => ['AuthMiddleware::authenticate', 'CheckIdMiddleware::checkHotelId', 'CheckIdMiddleware::checkRoomId']
+        ],
+        'list' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authenticate']
+        ],
+        'all' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authorizeAdmin']
+        ],
+        'stats' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authorizeAdmin']
+        ],
+        'cancel' => [
+            'method' => 'PUT',
+            'middleware' => ['AuthMiddleware::authenticate', 'CheckIdMiddleware::checkBookingId', 'CheckIdMiddleware::checkBookingOwnership']
+        ],
+        'complete' => [
+            'method' => 'PUT',
+            'middleware' => ['AuthMiddleware::authorizeAdmin', 'CheckIdMiddleware::checkBookingId']
+        ]
+    ],
+    'payment' => [
+        'create' => [
+            'method' => 'POST',
+            'middleware' => ['AuthMiddleware::authenticate', 'CheckIdMiddleware::checkBookingId', 'CheckIdMiddleware::checkBookingOwnership']
+        ],
+        'list' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authenticate', 'CheckIdMiddleware::checkBookingId', 'CheckIdMiddleware::checkBookingOwnership']
+        ],
+        'success' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authenticate']
+        ],
+        'cancel' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authenticate']
+        ],
+        'all' => [
+            'method' => 'GET',
+            'middleware' => ['AuthMiddleware::authorizeAdmin']
+        ],
+        'stats' => [
+            'method' => 'GET',
             'middleware' => ['AuthMiddleware::authorizeAdmin']
         ],
         'update' => [
             'method' => 'PUT',
-            'middleware' => ['AuthMiddleware::authorizeAdmin']
+            'middleware' => ['AuthMiddleware::authorizeAdmin', 'CheckIdMiddleware::checkPaymentId']
         ]
     ]
 ];
@@ -74,16 +146,28 @@ $controllerName = isset($uri[3]) ? ucfirst($uri[3]) . 'Controller' : 'BaseContro
 $actionName = isset($uri[4]) ? $uri[4] : 'list';
 $strMethodName = $actionName . 'Action';
 
-// Điều chỉnh cho RESTful URL (ví dụ: /api/hotel/123)
+// Điều chỉnh cho RESTful URL
 if ($controllerName === 'HotelController' && isset($uri[4]) && is_numeric($uri[4])) {
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $actionName = 'delete';
-        $_GET['id'] = $uri[4]; // Gán id cho deleteAction
+        $_GET['id'] = $uri[4];
     } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $actionName = 'update';
-        $_POST['id'] = $uri[4]; // Gán id cho updateAction
+        $_POST['id'] = $uri[4];
     }
     $strMethodName = $actionName . 'Action';
+} elseif ($controllerName === 'BookingController' && isset($uri[4]) && is_numeric($uri[4]) && isset($uri[5]) && $uri[5] === 'cancel') {
+    $actionName = 'cancel';
+    $requestData = json_decode(file_get_contents('php://input'), true) ?? [];
+    $requestData['bookingId'] = $uri[4];
+    $_REQUEST['requestData'] = $requestData; // Gán lại để controller truy cập
+    $strMethodName = 'cancelAction';
+} elseif ($controllerName === 'PaymentController' && isset($uri[4]) && is_numeric($uri[4])) {
+    $actionName = 'update';
+    $requestData = json_decode(file_get_contents('php://input'), true) ?? [];
+    $requestData['paymentId'] = $uri[4];
+    $_REQUEST['requestData'] = $requestData;
+    $strMethodName = 'updateAction';
 }
 
 $controllerFile = PROJECT_ROOT_PATH . "/Controller/Api/" . $controllerName . ".php";
@@ -102,6 +186,13 @@ if (!class_exists($controllerName)) {
 
 $objController = new $controllerName();
 
+// Ghi đè getRequestData để dùng $_REQUEST['requestData']
+if ($controllerName === 'BookingController' || $controllerName === 'PaymentController') {
+    $objController->getRequestData = function() {
+        return $_REQUEST['requestData'] ?? json_decode(file_get_contents('php://input'), true) ?? [];
+    };
+}
+
 if (!method_exists($objController, $strMethodName)) {
     header("HTTP/1.1 404 Không Tìm Thấy");
     exit();
@@ -116,9 +207,23 @@ if (isset($routes[$uri[3]][$actionName]) && $routes[$uri[3]][$actionName]['metho
         $requestData = json_decode(file_get_contents('php://input'), true) ?? [];
         $queryParams = $_GET ?? [];
         $userId = $requestData['userId'] ?? $queryParams['userId'] ?? null;
+        $hotelId = $requestData['hotelId'] ?? $queryParams['hotelId'] ?? null;
+        $roomId = $requestData['roomId'] ?? $queryParams['roomId'] ?? null;
+        $bookingId = $requestData['bookingId'] ?? $queryParams['bookingId'] ?? null;
+        $paymentId = $requestData['paymentId'] ?? null;
 
         foreach ($routes[$uri[3]][$actionName]['middleware'] as $middleware) {
-            if (isset($routes[$uri[3]][$actionName]['requiresUserId']) && $routes[$uri[3]][$actionName]['requiresUserId']) {
+            if ($middleware === 'CheckIdMiddleware::checkHotelId' && $hotelId) {
+                call_user_func($middleware, $hotelId);
+            } elseif ($middleware === 'CheckIdMiddleware::checkRoomId' && $roomId) {
+                call_user_func($middleware, $roomId);
+            } elseif ($middleware === 'CheckIdMiddleware::checkBookingId' && $bookingId) {
+                call_user_func($middleware, $bookingId);
+            } elseif ($middleware === 'CheckIdMiddleware::checkPaymentId' && $paymentId) {
+                call_user_func($middleware, $paymentId);
+            } elseif ($middleware === 'CheckIdMiddleware::checkBookingOwnership' && $bookingId) {
+                call_user_func($middleware, $bookingId);
+            } elseif (isset($routes[$uri[3]][$actionName]['requiresUserId']) && $routes[$uri[3]][$actionName]['requiresUserId']) {
                 if (!$userId) {
                     header('Content-Type: application/json');
                     header('HTTP/1.1 400 Yêu Cầu Không Hợp Lệ');
