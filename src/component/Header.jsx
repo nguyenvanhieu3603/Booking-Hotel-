@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
@@ -11,7 +11,9 @@ import { AppContext } from "../context/ContextData";
 function Header() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const { setLocale, locale, isAuth, setIsAuth } = useContext(AppContext);
+
   const [isAdmin, setIsAdmin] = useState(false);
+
 
 
 
@@ -28,19 +30,15 @@ function Header() {
       );
       if (res.data.success) {
         localStorage.clear();
-        setIsAuth(false); // Thêm dòng này để cập nhật trạng thái đăng nhập
+        setIsAuth(false);
       }
     } catch (error) {
-      // Có thể xử lý lỗi nếu cần
       error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
         "Có lỗi xảy ra. Vui lòng thử lại.";
     }
   };
-
-
-  
 
   useEffect(() => {
     const objectUser = JSON.parse(localStorage.getItem("user"));
@@ -108,8 +106,12 @@ function Header() {
               type="button"
             >
               <FaUserCircle />
+
               {/* Nếu không dùng react-icons thì thay bằng: <span style={{fontSize: 28}}>👤</span> */}
             </Link>
+
+            </button>
+
           )}
           <div
             className={`absolute top-[49px] bg-[#f5f1f1] rounded-lg p-3 transition-all duration-500 ease-in-out overflow-hidden shadow-lg transform ${
@@ -152,16 +154,8 @@ function Header() {
             </ul>
           </div>
 
-          {/* <Link
-            className="hover:opacity-90 hover:bg-[#6987b6] rounded-lg p-3"
-            to="/help"
-          >
-            <CircleHelp />
-          </Link> */}
-
           {isAuth ? (
             <button
-              // to={"/login"}
               className="text-[#1075e4] bg-[#ffffff] hover:opacity-90 rounded-lg cursor-pointer p-2 px-4 w-[110px] flex items-center justify-center"
               onClick={handleLogout}
             >
