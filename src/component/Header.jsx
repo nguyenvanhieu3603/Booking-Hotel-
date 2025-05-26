@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
@@ -109,8 +109,6 @@ function Header() {
 
               {/* Nếu không dùng react-icons thì thay bằng: <span style={{fontSize: 28}}>👤</span> */}
             </Link>
-
-            </button>
 
           )}
           <div
