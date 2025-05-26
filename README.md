@@ -256,7 +256,6 @@ Body sent (form-data) :
 | Key           | Type     | Required | Value                                  |
 | ------------- | -------- | -------- | ---------------------------------------|
 | `name`        | `text`   |   Yes    | Name of the hotel                      |
-| `name`        | `text`   |   Yes    | Name of the hotel                      |
 | `address`     | `text`   |   Yes    | Address of the hotel                   |
 | `description` | `text`   |   No     | Description of the hotel               |
 | `rating`      | `text`   |   No     | Rating (0.0 - 5.0)                     |
@@ -274,7 +273,61 @@ Body return (JSON):
 ```
 
 ### Quản lý phòng (Admin)
-### Lấy danh sách phòng (Admin)
+#### Tạo phòng (Admin)
+
+```
+POST http://localhost/bookingBackend/api/room/create
+```
+
+content-type: multipart/form-data
+
+Body sent (form-data) :
+```
+| Key           | Type     | Required | Value                                  |
+| ------------- | -------- | -------- | ---------------------------------------|
+| `hotelId`     | `text`   |   Yes    | Id of the hotel                        |
+| `name`        | `text`   |   Yes    | Name of the hotel                      |
+| `roomType`    | `text`   |   Yes    | Roomtype ("Single","Double")           |
+| `price`       | `text`   |   Yes    | Room price                             |
+| `quantity`    | `text`   |   Yes    | Room quantity                          |
+| `amenities`   | `text`   |   No     | Room amenities                         |
+| `images[]`    | `file`   |   No     | Image files added(optional uploads)    | 
+```
+
+Body return (JSON):
+```json
+{
+    "id": "room_id",
+    "images": [
+        "image_link"
+    ],
+    "message": "Room created successfully"
+}   
+```
+Body return exception :
+
+- `price` or `quantity` is null or not numeric
+```json
+{
+    "error": "Price and quantity must be numeric values"
+}
+```
+
+- `price` or `quantity` is numeric and < 0
+```json
+{
+    "error": "Quantity must be greater than zero"
+}
+```
+
+- room `name` already exists in `hotelId`  
+```json
+{
+    "error": "A room with this name already exists for this hotel."
+}
+```
+
+#### Lấy danh sách phòng (Admin)
 
 ```
 GET http://localhost/bookingBackend/api/room/list?hotelId={hotel_id}
@@ -325,6 +378,9 @@ bookingBackend/
 │   └── EmailService.php
 ├── vendor/
 │   └── ... (thư viện Composer)
+├── uploads/
+│   ├── hotel/(Ảnh khách sạn)
+|   └── rooms/(Ảnh phòng)
 ├── index.php
 └── README.md
 ```

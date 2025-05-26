@@ -19,7 +19,7 @@ class RoomModel extends Database
     public function createRoom($hotelId, $name, $roomType, $price, $quantity, $amenities = null)
     {
         return $this->insert(
-            "INSERT INTO rooms (hotelId, name, roomType, price, quantity, amenities) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO rooms (hotelId, name, room_type, price, quantity, amenities) VALUES (?, ?, ?, ?, ?, ?)",
             ["issdis", $hotelId, $name, $roomType, $price, $quantity, $amenities]
         );
     }
@@ -53,14 +53,33 @@ class RoomModel extends Database
             AND statusId != 'cancelled'
         ), 0) AS available 
         FROM rooms WHERE id = ?";
-        
+
         return $this->select($query, [
-            "issssssi", 
-            $roomId, 
-            $checkInDate, $checkOutDate,
-            $checkInDate, $checkOutDate,
-            $checkInDate, $checkOutDate,
+            "issssssi",
+            $roomId,
+            $checkInDate,
+            $checkOutDate,
+            $checkInDate,
+            $checkOutDate,
+            $checkInDate,
+            $checkOutDate,
             $roomId
         ]);
+    }
+    public function addRoomImage($roomId, $imagePath)
+    {
+        return $this->insert(
+            "INSERT INTO room_images (room_id, image_url) VALUES (?, ?)",
+            ["is", $roomId, $imagePath]
+        );
+    }
+
+    public function isRoomNameExists($hotelId, $roomName)
+    {
+        $result = $this->select(
+            "SELECT COUNT(*) as count FROM rooms WHERE hotelId = ? AND name = ?",
+            ['is', $hotelId, $roomName]
+        );
+        return $result[0]['count'] > 0;
     }
 }

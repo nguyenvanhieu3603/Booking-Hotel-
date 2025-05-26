@@ -13,21 +13,21 @@ class RoomController extends BaseController
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 $roomModel = new RoomModel();
-                
+
                 if (!isset($arrQueryStringParams['hotelId'])) {
                     throw new Exception('Hotel ID is required');
                 }
-                
+
                 $hotelId = $arrQueryStringParams['hotelId'];
                 $intLimit = 10;
                 if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
                     $intLimit = $arrQueryStringParams['limit'];
                 }
-                
+
                 $arrRooms = $roomModel->getRoomsByHotel($hotelId, $intLimit);
                 $responseData = json_encode($arrRooms);
             } catch (Exception $e) {
-                $strErrorDesc = $e->getMessage().' Something went wrong! Please contact support.';
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
                 $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
             }
         } else {
@@ -60,17 +60,19 @@ class RoomController extends BaseController
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 $roomModel = new RoomModel();
-                
-                if (!isset($arrQueryStringParams['roomId']) || 
-                    !isset($arrQueryStringParams['checkInDate']) || 
-                    !isset($arrQueryStringParams['checkOutDate'])) {
+
+                if (
+                    !isset($arrQueryStringParams['roomId']) ||
+                    !isset($arrQueryStringParams['checkInDate']) ||
+                    !isset($arrQueryStringParams['checkOutDate'])
+                ) {
                     throw new Exception('Parameters roomId, checkInDate and checkOutDate are required');
                 }
-                
+
                 $roomId = $arrQueryStringParams['roomId'];
                 $checkInDate = $arrQueryStringParams['checkInDate'];
                 $checkOutDate = $arrQueryStringParams['checkOutDate'];
-                
+
                 $availability = $roomModel->checkAvailability($roomId, $checkInDate, $checkOutDate);
                 $responseData = json_encode($availability[0]);
             } catch (Exception $e) {
@@ -102,20 +104,38 @@ class RoomController extends BaseController
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
-        
+
         if (strtoupper($requestMethod) == 'POST') {
             try {
                 $roomModel = new RoomModel();
-                $requestData = $this->getRequestData();
-                
-                if (!isset($requestData['hotelId']) || 
-                    !isset($requestData['name']) || 
-                    !isset($requestData['roomType']) || 
-                    !isset($requestData['price']) || 
-                    !isset($requestData['quantity'])) {
+                $requestData = $_POST;
+                $validRoomTypes = ['Single', 'Double'];
+
+                if (
+                    !isset($requestData['hotelId']) ||
+                    !isset($requestData['name']) ||
+                    !isset($requestData['roomType']) ||
+                    !isset($requestData['price']) ||
+                    !isset($requestData['quantity'])
+                ) {
                     throw new Exception('Missing required fields: hotelId, name, roomType, price, quantity');
                 }
-                
+
+                if (!in_array($requestData['roomType'], $validRoomTypes)) {
+                    throw new Exception('Invalid room type. Must be "Single" or "Double".');
+                }
+
+                if (!is_numeric($requestData['price']) || !is_numeric($requestData['quantity'])) {
+                    throw new Exception('Price and quantity must be numeric values');
+                }
+
+                if ($requestData['quantity'] <= 0 || $requestData['price'] <= 0) {
+                    throw new Exception('Price and quantity must be greater than zero');
+                }
+
+                if ($roomModel->isRoomNameExists($requestData['hotelId'], $requestData['name'])) {
+                    throw new Exception('A room with this name already exists for this hotel.');
+                }
                 $roomId = $roomModel->createRoom(
                     $requestData['hotelId'],
                     $requestData['name'],
@@ -124,9 +144,27 @@ class RoomController extends BaseController
                     $requestData['quantity'],
                     $requestData['amenities'] ?? null
                 );
-                
+                $imagePaths = [];
+                if (!empty($_FILES['images'])) {
+                    $uploadDir = 'uploads/rooms/';
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+
+                    foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
+                        $originalName = basename($_FILES['images']['name'][$index]);
+                        $targetPath = $uploadDir . time() . '_' . $originalName;
+
+                        if (move_uploaded_file($tmpName, $targetPath)) {
+                            $roomModel->addRoomImage($roomId, $targetPath);
+                            $imagePaths[] = $targetPath;
+                        }
+                    }
+                }
+
                 $responseData = json_encode([
                     'id' => $roomId,
+                    'images' => $imagePaths,
                     'message' => 'Room created successfully'
                 ]);
             } catch (Exception $e) {
