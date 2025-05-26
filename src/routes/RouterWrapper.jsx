@@ -9,11 +9,12 @@ import PublicRoute from "./PublicRoute";
 import HomeListPage from "../page/HotelListPage";
 import AboutUs from "../page/AboutUs";
 import HotelDetail from "../page/HotelDetail";
-import AdminDashboard from "../page/AdminDashboard";
 import ManageUsers from "../component/ManageUsers";
 import ManageHotels from "../component/ManageHotels";
 import ManageBookings from "../component/ManageBookings";
 import AdminProfile from "../component/AdminProfile";
+import Dashboard from "../page/Dashboard";
+import AdminDashboard from "../component/AdminDashboard";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
@@ -30,7 +31,7 @@ function RouterWrapper() {
           element: <AboutUs />,
         },
         {
-          path: "/home-list",
+          path: "home-list",
           element: <Outlet />,
           children: [
             { path: "", element: <HomeListPage /> },
@@ -38,10 +39,14 @@ function RouterWrapper() {
           ],
         },
         {
-          path: "admin",
-          element: <Outlet />,
+          path: "dashboard",
+          element: (
+            <Dashboard>
+              <Outlet />
+            </Dashboard>
+          ),
           children: [
-            { path: "dashboard", element: <AdminDashboard /> },
+            { path: "", element: <AdminDashboard /> },
             { path: "users", element: <ManageUsers /> },
             { path: "hotels", element: <ManageHotels /> },
             { path: "bookings", element: <ManageBookings /> },
