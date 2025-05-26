@@ -289,7 +289,6 @@ Body sent (form-data) :
 | `name`        | `text`   |   Yes    | Name of the hotel                      |
 | `roomType`    | `text`   |   Yes    | Roomtype ("Single","Double")           |
 | `price`       | `text`   |   Yes    | Room price                             |
-| `quantity`    | `text`   |   Yes    | Room quantity                          |
 | `amenities`   | `text`   |   No     | Room amenities                         |
 | `images[]`    | `file`   |   No     | Image files added(optional uploads)    | 
 ```
@@ -306,14 +305,14 @@ Body return (JSON):
 ```
 Body return exception :
 
-- `price` or `quantity` is null or not numeric
+- `price` is null or not numeric
 ```json
 {
-    "error": "Price and quantity must be numeric values"
+    "error": "Price must be numeric values"
 }
 ```
 
-- `price` or `quantity` is numeric and < 0
+- `price` is numeric and < 0
 ```json
 {
     "error": "Quantity must be greater than zero"
@@ -326,6 +325,14 @@ Body return exception :
     "error": "A room with this name already exists for this hotel."
 }
 ```
+
+- `hotelId`, `name`, `roomType`, `price` empty
+```json
+{
+    "error": "Missing required fields: hotelId, name, roomType, price"
+}
+```
+
 
 #### Lấy danh sách phòng (Admin)
 
@@ -345,7 +352,6 @@ Body return (JSON):
         "name": "room_name",
         "room_type": "room_type",
         "price": "price",
-        "quantity": "quantity",
         "amenities": "amenities",
         "created_at": "created_at"
     },

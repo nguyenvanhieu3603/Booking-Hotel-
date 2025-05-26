@@ -16,19 +16,19 @@ class RoomModel extends Database
         return $this->select("SELECT * FROM rooms WHERE id = ?", ["i", $roomId]);
     }
 
-    public function createRoom($hotelId, $name, $roomType, $price, $quantity, $amenities = null)
+    public function createRoom($hotelId, $name, $roomType, $price, $amenities = null)
     {
         return $this->insert(
-            "INSERT INTO rooms (hotelId, name, room_type, price, quantity, amenities) VALUES (?, ?, ?, ?, ?, ?)",
-            ["issdis", $hotelId, $name, $roomType, $price, $quantity, $amenities]
+            "INSERT INTO rooms (hotelId, name, room_type, price, amenities) VALUES (?, ?, ?, ?, ?, ?)",
+            ["issdis", $hotelId, $name, $roomType, $price, $amenities]
         );
     }
 
-    public function updateRoom($roomId, $name, $roomType, $price, $quantity, $amenities)
+    public function updateRoom($roomId, $name, $roomType, $price, $amenities)
     {
         return $this->update(
-            "UPDATE rooms SET name = ?, roomType = ?, price = ?, quantity = ?, amenities = ? WHERE id = ?",
-            ["ssdiss", $name, $roomType, $price, $quantity, $amenities, $roomId]
+            "UPDATE rooms SET name = ?, roomType = ?, price = ?, amenities = ? WHERE id = ?",
+            ["ssdiss", $name, $roomType, $price, $amenities, $roomId]
         );
     }
 
@@ -37,35 +37,7 @@ class RoomModel extends Database
         return $this->delete("DELETE FROM rooms WHERE id = ?", ["i", $roomId]);
     }
 
-    public function checkAvailability($roomId, $checkInDate, $checkOutDate)
-    {
-        // Logic kiểm tra phòng có sẵn trong khoảng thời gian
-        // Giả sử chúng ta có bảng bookings (sẽ triển khai sau)
-        $query = "SELECT quantity - IFNULL((
-            SELECT SUM(quantity) 
-            FROM bookings 
-            WHERE roomId = ? 
-            AND (
-                (checkInDate BETWEEN ? AND ?)
-                OR (checkOutDate BETWEEN ? AND ?)
-                OR (checkInDate <= ? AND checkOutDate >= ?)
-            )
-            AND statusId != 'cancelled'
-        ), 0) AS available 
-        FROM rooms WHERE id = ?";
-
-        return $this->select($query, [
-            "issssssi",
-            $roomId,
-            $checkInDate,
-            $checkOutDate,
-            $checkInDate,
-            $checkOutDate,
-            $checkInDate,
-            $checkOutDate,
-            $roomId
-        ]);
-    }
+    
     public function addRoomImage($roomId, $imagePath)
     {
         return $this->insert(

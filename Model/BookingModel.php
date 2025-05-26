@@ -59,24 +59,25 @@ class BookingModel extends Database
             ["ii", $userId, $limit]
         );
     }
-    public function checkRoomAvailability($roomId, $checkInDate, $checkOutDate)
+    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people)
     {
-        return $this->select(
-            "SELECT r.quantity - IFNULL((
-                SELECT COUNT(*) 
-                FROM bookings b 
-                WHERE b.roomId = ? 
-                AND b.status != 'cancelled'
-                AND (
-                    (b.checkInDate BETWEEN ? AND ?)
-                    OR (b.checkOutDate BETWEEN ? AND ?)
-                    OR (b.checkInDate <= ? AND b.checkOutDate >= ?)
-                )
-            ), 0) AS available
-            FROM rooms r
-            WHERE r.id = ?",
-            ["issssssi", $roomId, $checkInDate, $checkOutDate, $checkInDate, $checkOutDate, 
-            $checkInDate, $checkOutDate, $roomId]
-        );
+        $query = "SELECT *
+        FROM rooms r
+        WHERE r.hotelId = ?
+        AND (? < 3 OR r.room_type = 'Double') 
+        AND NOT EXISTS (
+         SELECT 1
+         FROM bookings b
+         WHERE b.room_id = r.id
+         AND b.check_in_date <= ?
+         AND b.check_out_date >= ?
+  );";
+        return $this->select($query, [
+            "iiss",
+            $hotelId,
+            $people,
+            $checkOutDate,
+            $checkInDate,
+        ]);
     }
 }

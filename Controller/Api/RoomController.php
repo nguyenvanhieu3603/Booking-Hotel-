@@ -49,9 +49,9 @@ class RoomController extends BaseController
     }
 
     /**
-     * "/room/availability" Endpoint - Check room availability
+     * "/room/available" Endpoint - Check room availability
      */
-    public function availabilityAction()
+    public function availableAction()
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
@@ -59,22 +59,39 @@ class RoomController extends BaseController
 
         if (strtoupper($requestMethod) == 'GET') {
             try {
-                $roomModel = new RoomModel();
-
+                $bookingModel = new BookingModel();
                 if (
-                    !isset($arrQueryStringParams['roomId']) ||
+                    !isset($arrQueryStringParams['hotelId']) ||
+                    !isset($arrQueryStringParams['people']) ||
                     !isset($arrQueryStringParams['checkInDate']) ||
                     !isset($arrQueryStringParams['checkOutDate'])
                 ) {
-                    throw new Exception('Parameters roomId, checkInDate and checkOutDate are required');
+                    throw new Exception('Parameters hotelId, checkInDate and checkOutDate are required');
                 }
 
-                $roomId = $arrQueryStringParams['roomId'];
+                $hotelId = (int) $arrQueryStringParams['hotelId'];
+                $people = isset($arrQueryStringParams['people']) ? (int) $arrQueryStringParams['people'] : 1;
                 $checkInDate = $arrQueryStringParams['checkInDate'];
                 $checkOutDate = $arrQueryStringParams['checkOutDate'];
 
-                $availability = $roomModel->checkAvailability($roomId, $checkInDate, $checkOutDate);
-                $responseData = json_encode($availability[0]);
+                $checkIn = DateTime::createFromFormat('Y-m-d', $checkInDate);
+                $checkOut = DateTime::createFromFormat('Y-m-d', $checkOutDate);
+
+                if (!$checkIn || !$checkOut) {
+                    throw new Exception('Invalid date format. Use YYYY-MM-DD');
+                }
+                if ($checkIn >= $checkOut) {
+                    throw new Exception('Check-in date must be before check-out date');
+                }
+                if ($people < 1 || $people > 4) {
+                    throw new Exception('People must be an integer between 1 and 4');
+                }
+                if (!is_numeric($hotelId) || $hotelId <= 0) {
+                    throw new Exception('Invalid hotel ID');
+                }
+
+                $availability = $bookingModel->checkAvailability($hotelId, $people, $checkInDate, $checkOutDate);
+                $responseData = json_encode($availability);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
                 $strErrorHeader = 'HTTP/1.1 400 Bad Request';
@@ -112,25 +129,24 @@ class RoomController extends BaseController
                 $validRoomTypes = ['Single', 'Double'];
 
                 if (
-                    !isset($requestData['hotelId']) ||
-                    !isset($requestData['name']) ||
-                    !isset($requestData['roomType']) ||
-                    !isset($requestData['price']) ||
-                    !isset($requestData['quantity'])
+                    empty($requestData['hotelId']) ||
+                    empty($requestData['name']) ||
+                    empty($requestData['roomType']) ||
+                    empty($requestData['price']) 
                 ) {
-                    throw new Exception('Missing required fields: hotelId, name, roomType, price, quantity');
+                    throw new Exception('Missing required fields: hotelId, name, roomType, price');
                 }
 
                 if (!in_array($requestData['roomType'], $validRoomTypes)) {
                     throw new Exception('Invalid room type. Must be "Single" or "Double".');
                 }
 
-                if (!is_numeric($requestData['price']) || !is_numeric($requestData['quantity'])) {
-                    throw new Exception('Price and quantity must be numeric values');
+                if (!is_numeric($requestData['price']) ) {
+                    throw new Exception('Price must be numeric values');
                 }
 
-                if ($requestData['quantity'] <= 0 || $requestData['price'] <= 0) {
-                    throw new Exception('Price and quantity must be greater than zero');
+                if ($requestData['price'] <= 0) {
+                    throw new Exception('Price must be greater than zero');
                 }
 
                 if ($roomModel->isRoomNameExists($requestData['hotelId'], $requestData['name'])) {
@@ -141,7 +157,6 @@ class RoomController extends BaseController
                     $requestData['name'],
                     $requestData['roomType'],
                     $requestData['price'],
-                    $requestData['quantity'],
                     $requestData['amenities'] ?? null
                 );
                 $imagePaths = [];
