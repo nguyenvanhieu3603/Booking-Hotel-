@@ -193,4 +193,23 @@ class BookingModel extends Database
             ["i", $bookingId]
         );
     }
+    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people)
+    {
+        $query = "SELECT *
+        FROM rooms r
+        WHERE r.hotelId = ?
+        AND NOT EXISTS (
+         SELECT 1
+         FROM bookings b
+         WHERE b.room_id = r.id
+         AND b.check_in_date <= ?
+         AND b.check_out_date >= ?
+  );";
+        return $this->select($query, [
+            "iss",
+            $hotelId,
+            $checkOutDate,
+            $checkInDate,
+        ]);
+    }
 }
