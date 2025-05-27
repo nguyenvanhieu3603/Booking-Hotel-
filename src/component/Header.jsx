@@ -42,8 +42,12 @@ function Header() {
 
   useEffect(() => {
     const objectUser = JSON.parse(localStorage.getItem("user"));
-    objectUser.role === "admin" ? setIsAdmin(true) : setIsAdmin(false);
-  }, []);
+    if (objectUser && objectUser.role === "admin" && isAuth) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [isAuth]);
 
   return (
     <div className="container mx-auto">
@@ -96,12 +100,11 @@ function Header() {
               onClick={toggleDropdown}
             />
           </div>
-          {isAdmin && (
+          {isAdmin && isAuth && (
             <Link
-            to={"/dashboard"}
+              to={"/dashboard"}
               className="flex items-center justify-center text-[#818080] text-2xl cursor-pointer mr-4 mx-1 focus:outline-none"
               style={{ background: "none", border: "none" }}
-              // onClick={handleUserIconClick}
               title="Thông tin cá nhân"
               type="button"
             >
