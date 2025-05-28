@@ -64,7 +64,6 @@ class BookingModel extends Database
         $query = "SELECT *
         FROM rooms r
         WHERE r.hotelId = ?
-        AND (? < 3 OR r.room_type = 'Double') 
         AND NOT EXISTS (
          SELECT 1
          FROM bookings b
@@ -73,9 +72,8 @@ class BookingModel extends Database
          AND b.check_out_date >= ?
   );";
         return $this->select($query, [
-            "iiss",
+            "iss",
             $hotelId,
-            $people,
             $checkOutDate,
             $checkInDate,
         ]);

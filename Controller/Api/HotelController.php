@@ -14,12 +14,7 @@ class HotelController extends BaseController
             try {
                 $hotelModel = new HotelModel();
 
-                $intLimit = 15;
-                if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
-                    $intLimit = $arrQueryStringParams['limit'];
-                }
-
-                $arrHotels = $hotelModel->getHotels($intLimit);
+                $arrHotels = $hotelModel->getHotels();
 
                 // Add hotel images to each hotel
                 foreach ($arrHotels as &$hotel) {
@@ -53,6 +48,63 @@ class HotelController extends BaseController
             $this->sendOutput(
                 json_encode(array('error' => $strErrorDesc)),
                 array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+    /**
+     * "/hotel/all" Endpoint - Get list of hotels and room
+     */
+    public function allAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                $hotelModel = new HotelModel();
+                $roomModel = new RoomModel();
+                $arrHotels = $hotelModel->getAllHotels();
+
+                foreach ($arrHotels as &$hotel) {
+                    $hotelId = $hotel['id'];
+
+
+                    $images = $hotelModel->getImagesByHotelId($hotelId);
+                    $hotel['images'] = !empty($images)
+                        ? array_column($images, 'image_url')
+                        : ['uploads/hotel/default_hotel.png'];
+
+
+                    $rooms = $roomModel->getRoomsByHotelId($hotelId);
+                    foreach ($rooms as &$room) {
+                        $roomImages = $roomModel->getImagesByRoomId($room['id']);
+                        $room['images'] = !empty($roomImages)
+                            ? array_column($roomImages, 'image_url')
+                            : ['uploads/room/default_room.png'];
+                    }
+
+                    $hotel['rooms'] = $rooms;
+                }
+
+                $responseData = json_encode($arrHotels);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                ['Content-Type: application/json', 'HTTP/1.1 200 OK']
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(['error' => $strErrorDesc]),
+                ['Content-Type: application/json', $strErrorHeader]
             );
         }
     }
@@ -240,14 +292,18 @@ class HotelController extends BaseController
 
         if (strtoupper($requestMethod) == 'POST') {
             try {
-                if (!isset($_POST['id'])) {
-                    throw new Exception('Hotel ID is required');
+                if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+                    throw new Exception('Invalid or missing hotel ID in URL');
                 }
+                $hotelId = $_GET['id'];
+                if (!is_numeric($hotelId)) {
+                    throw new Exception('Invalid or missing hotel ID in URL');
+                }
+
                 if (!isset($_POST['name']) || !isset($_POST['address'])) {
                     throw new Exception('Missing required fields: name, address');
                 }
 
-                $hotelId = $_POST['id'];
                 $hotelModel = new HotelModel();
 
                 $hotelModel->updateHotel(
@@ -259,7 +315,22 @@ class HotelController extends BaseController
                 );
 
                 $imagePaths = [];
-                if (!empty($_FILES['images'])) {
+                $deletedImages = [];
+
+                if (!empty($_POST['delete_images']) && is_array($_POST['delete_images'])) {
+                    foreach ($_POST['delete_images'] as $imgPath) {
+                        $realPath = realpath($imgPath);
+                        if ($realPath && strpos($realPath, realpath('uploads/hotel/')) === 0) {
+                            $hotelModel->deleteHotelImage($hotelId, $imgPath); // delete from DB
+                            if (file_exists($imgPath)) {
+                                unlink($imgPath); // delete from filesystem
+                            }
+                            $deletedImages[] = $imgPath; // collect for response
+                        }
+                    }
+                }
+
+                if (!empty($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
                     $uploadDir = 'uploads/hotel/';
                     if (!file_exists($uploadDir)) {
                         mkdir($uploadDir, 0777, true);
@@ -267,7 +338,8 @@ class HotelController extends BaseController
 
                     foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
                         $originalName = basename($_FILES['images']['name'][$index]);
-                        $targetPath = $uploadDir . time() . '_' . $originalName;
+                        $uniqueName = uniqid() . '_' . $originalName;
+                        $targetPath = $uploadDir . $uniqueName;
 
                         if (move_uploaded_file($tmpName, $targetPath)) {
                             $hotelModel->addHotelImage($hotelId, $targetPath);
@@ -278,7 +350,8 @@ class HotelController extends BaseController
 
                 $responseData = json_encode([
                     'message' => 'Hotel updated successfully',
-                    'images_added' => $imagePaths
+                    'images_added' => $imagePaths,
+                    'images_deleted' => $deletedImages
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
@@ -292,12 +365,12 @@ class HotelController extends BaseController
         if (!$strErrorDesc) {
             $this->sendOutput(
                 $responseData,
-                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+                ['Content-Type: application/json', 'HTTP/1.1 200 OK']
             );
         } else {
             $this->sendOutput(
-                json_encode(array('error' => $strErrorDesc)),
-                array('Content-Type: application/json', $strErrorHeader)
+                json_encode(['error' => $strErrorDesc]),
+                ['Content-Type: application/json', $strErrorHeader]
             );
         }
     }

@@ -140,42 +140,126 @@ Body (JSON):
 #### Lấy danh sách khách sạn hoạt động
 
 ```
-GET http://localhost/bookingBackend/api/hotel/list?limit=10
+GET http://localhost/bookingBackend/api/hotel/list
 ```
 Body (JSON):
 ````json
 [
     {
-        "id": "hotel_id",
-        "name": "hotel_name",
-        "address": "hotel_address",
-        "description": "hotel_description",
-        "rating": "hotel_rating",
-        "active": "hotel_status",
-        "created_at": "hotel_create_date",
+        "id": 1,
+        "name": "Hanoi Sunset Hotel",
+        "address": "45 Tran Phu, Hanoi",
+        "description": "Khách sạn giá rẻ gần trung tâm thành phố.",
+        "rating": 2.5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
         "images": [
-            "image_link"
+            "uploads/hotel/default_hotel.png"
         ]
     },
     {
-        "id": "hotel_id",
-        "name": "hotel_name",
-        "address": "hotel_address",
-        "description": "hotel_description",
-        "rating": "hotel_rating",
-        "active": "hotel_status",
-        "created_at": "hotel_create_date",
+        "id": 2,
+        "name": "Lake View Inn",
+        "address": "23 Hoan Kiem, Hanoi",
+        "description": "Tầm nhìn tuyệt đẹp ra hồ Hoàn Kiếm.",
+        "rating": 3,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
         "images": [
-            "image_link"
+            "uploads/hotel/default_hotel.png"
         ]
-    }
+    },
+    {
+        "id": 3,
+        "name": "Old Quarter Lodge",
+        "address": "78 Hang Bac, Hanoi",
+        "description": "Phong cách truyền thống trong khu phố cổ.",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Budget Stay Hanoi",
+        "address": "120 Kim Ma, Hanoi",
+        "description": "Lựa chọn lý tưởng cho khách du lịch tiết kiệm.",
+        "rating": 1.5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 5,
+        "name": "Royal Garden Hotel",
+        "address": "5 Phan Dinh Phung, Hanoi",
+        "description": "Khu nghỉ dưỡng sang trọng với vườn cây.",
+        "rating": 5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 6,
+        "name": "City Inn",
+        "address": "98 Le Duan, Hanoi",
+        "description": "Vị trí thuận tiện gần ga tàu.",
+        "rating": 2,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 7,
+        "name": "Hanoi Nights Hotel",
+        "address": "33 Nha Chung, Hanoi",
+        "description": "Khung cảnh lãng mạn ở trung tâm Hà Nội.",
+        "rating": 3.5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Peaceful Stay",
+        "address": "15 Cau Giay, Hanoi",
+        "description": "Không gian yên tĩnh và dịch vụ thân thiện.",
+        "rating": 4.2,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 9,
+        "name": "Historic Charm Hotel",
+        "address": "62 Bat Dan, Hanoi",
+        "description": "Khách sạn phong cách cổ điển với lịch sử phong phú.",
+        "rating": 3.8,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
 ]
 ````
 
 #### Xem chi tiết khách sạn
 
 ```
-GET http://localhost/bookingBackend/api/hotel/get?id={Hotel_id}
+GET http://localhost/bookingBackend/api/hotel/get?id=1
 ```
 Query Parameters:
 
@@ -185,19 +269,323 @@ Body (JSON):
 
 ```json
 {
-    "id": "hotel_id",
-    "name": "hotel_name",
-    "address": "hotel_address",
-    "description": "hotel_description",
-    "rating": "hotel_rating",
-    "active": "hotel_status",
-    "created_at": "hotel_create_date",
+    "id": 1,
+    "name": "Hanoi Sunset Hotel",
+    "address": "45 Tran Phu, Hanoi",
+    "description": "Khách sạn giá rẻ gần trung tâm thành phố.",
+    "rating": 2.5,
+    "active": 0,
+    "created_at": "2025-05-23 10:09:03",
     "images": [
-        "hotel_image_links"
+        "uploads/hotel/default_hotel.png"
     ]
 }
 ```
 ### Quản lý khách sạn (Admin)
+#### Xem tất cả khách sạn và phòng
+````
+GET http://localhost/bookingBackend/api/hotel/all
+````
+
+Body return (JSON):
+
+```json
+[
+    {
+        "id": 1,
+        "name": "Hanoi Sunset Hotel",
+        "address": "45 Tran Phu, Hanoi",
+        "description": "Khách sạn giá rẻ gần trung tâm thành phố.",
+        "rating": 2.5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ],
+        "rooms": [
+            {
+                "id": 1,
+                "hotelId": 1,
+                "name": "P1001",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 2,
+                "hotelId": 1,
+                "name": "P1002",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 3,
+                "hotelId": 1,
+                "name": "P1003",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 4,
+                "hotelId": 1,
+                "name": "P1004",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 5,
+                "hotelId": 1,
+                "name": "P1005",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 6,
+                "hotelId": 1,
+                "name": "P1006",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 7,
+                "hotelId": 1,
+                "name": "P1007",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 8,
+                "hotelId": 1,
+                "name": "P1008",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 9,
+                "hotelId": 1,
+                "name": "P1009",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 10,
+                "hotelId": 1,
+                "name": "P1010",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 101,
+                "hotelId": 1,
+                "name": "P2001",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-26 12:09:24",
+                "images": [
+                    "uploads/rooms/1748236164_ava.jpg"
+                ]
+            },
+            {
+                "id": 102,
+                "hotelId": 1,
+                "name": "P2002",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "",
+                "created_at": "2025-05-26 12:14:26",
+                "images": [
+                    "uploads/rooms/1748236466_ava.jpg"
+                ]
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Lake View Inn",
+        "address": "23 Hoan Kiem, Hanoi",
+        "description": "Tầm nhìn tuyệt đẹp ra hồ Hoàn Kiếm.",
+        "rating": 3,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ],
+        "rooms": [
+            {
+                "id": 11,
+                "hotelId": 2,
+                "name": "P1001",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 12,
+                "hotelId": 2,
+                "name": "P1002",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 13,
+                "hotelId": 2,
+                "name": "P1003",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 14,
+                "hotelId": 2,
+                "name": "P1004",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 15,
+                "hotelId": 2,
+                "name": "P1005",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 16,
+                "hotelId": 2,
+                "name": "P1006",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 17,
+                "hotelId": 2,
+                "name": "P1007",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 18,
+                "hotelId": 2,
+                "name": "P1008",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 19,
+                "hotelId": 2,
+                "name": "P1009",
+                "room_type": "Single",
+                "price": "1000000",
+                "amenities": "Wi-Fi,TV,AC,Minibar",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            },
+            {
+                "id": 20,
+                "hotelId": 2,
+                "name": "P1010",
+                "room_type": "Double",
+                "price": "1500000",
+                "amenities": "Wi-Fi,TV,AC",
+                "created_at": "2025-05-20 10:00:00",
+                "images": [
+                    "uploads/room/default_room.png"
+                ]
+            }
+        ]
+    }
+]
+```
+
 #### Tạo khách sạn
 ```
 POST http://localhost/bookingBackend/api/hotel/create
@@ -244,30 +632,36 @@ Body return (JSON):
 }
 ```
 
-
 #### Sửa khách sạn
 ```
-POST http://localhost/bookingBackend/api/hotel/update
+POST http://localhost/bookingBackend/api/hotel/update?id=13
 ```
 content-type: multipart/form-data
 
+Params :
+- `id` = 13
+
 Body sent (form-data) :
 ```
-| Key           | Type     | Required | Value                                  |
-| ------------- | -------- | -------- | ---------------------------------------|
-| `name`        | `text`   |   Yes    | Name of the hotel                      |
-| `address`     | `text`   |   Yes    | Address of the hotel                   |
-| `description` | `text`   |   No     | Description of the hotel               |
-| `rating`      | `text`   |   No     | Rating (0.0 - 5.0)                     |
-| `images[]`    | `file`   |   No     | Image files added(optional uploads)    | 
+| Key                   | Type     | Required | Value                                          |
+| -------------         | -------- | -------- | ---------------------------------------        |
+| `name`                | `text`   |   Yes    | Update_name                                    |
+| `address`             | `text`   |   Yes    | HaNoi                                          |
+| `description`         | `text`   |   No     | Description                                    |
+| `rating`              | `text`   |   No     | 4                                              |
+| `images[]`            | `file`   |   No     | Image files added(optional uploads)            | 
+| `deleted_images[]`    | `file`   |   No     | Image files link(lấy link từ file uploads)     |
 ```
 
-Body return (JSON):
+Body return (JSON): (cái này t xóa ảnh rồi nen tùy dữ liệu trên máy )
 ```json
 {
     "message": "Hotel updated successfully",
     "images_added": [
-        "image_link"
+        "uploads/hotel/image_link"
+    ],
+    "images_deleted": [
+        "uploads/hotel/image_link"
     ]
 }
 ```
@@ -305,7 +699,7 @@ Body return (JSON):
 ```
 Body return exception :
 
-- `price` is null or not numeric
+- `price` is null or not numeric 
 ```json
 {
     "error": "Price must be numeric values"
@@ -337,7 +731,7 @@ Body return exception :
 #### Lấy danh sách phòng (Admin)
 
 ```
-GET http://localhost/bookingBackend/api/room/list?hotelId={hotel_id}
+GET http://localhost/bookingBackend/api/room/list?hotelId=1
 ```
 
 Query Parameters:
@@ -346,18 +740,373 @@ Query Parameters:
 Body return (JSON):
 ```json
 [
-  {
-        "id": "room_id",
-        "hotelId": "hotel_id",
-        "name": "room_name",
-        "room_type": "room_type",
-        "price": "price",
-        "amenities": "amenities",
-        "created_at": "created_at"
+    {
+        "id": 1,
+        "hotelId": 1,
+        "name": "P1001",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
     },
-]    
+    {
+        "id": 2,
+        "hotelId": 1,
+        "name": "P1002",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 3,
+        "hotelId": 1,
+        "name": "P1003",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 4,
+        "hotelId": 1,
+        "name": "P1004",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 5,
+        "hotelId": 1,
+        "name": "P1005",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 6,
+        "hotelId": 1,
+        "name": "P1006",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 7,
+        "hotelId": 1,
+        "name": "P1007",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 8,
+        "hotelId": 1,
+        "name": "P1008",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 9,
+        "hotelId": 1,
+        "name": "P1009",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 10,
+        "hotelId": 1,
+        "name": "P1010",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 101,
+        "hotelId": 1,
+        "name": "P2001",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-26 12:09:24",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 102,
+        "hotelId": 1,
+        "name": "P2002",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "",
+        "created_at": "2025-05-26 12:14:26",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    }
+] 
+```
+#### Sửa phòng theo id (Admin)
+```
+POST http://localhost/bookingBackend/api/room/update/?hotelId=1&roomId=101
+```
+content-type: multipart/form-data
+
+Params :
+- `hotelId` = id khách sạn
+- `roomId` = id phòng
+
+Body sent (form-data) :
+```
+| Key                   | Type     | Required | Value                                          |
+| -------------         | -------- | -------- | ---------------------------------------        |
+| `name`                | `text`   |   Yes    | Update name                                    |
+| `roomType`            | `text`   |   Yes    | Roomtype ("Single","Double")                   |
+| `price`               | `text`   |   Yes    | Room price                                     |
+| `amenities`           | `text`   |   No     | Room amenities                                 |
+| `images[]`            | `file`   |   No     | Image files added(optional uploads)            | 
+| `deleted_images[]`    | `file`   |   No     | Image files link(lấy link từ file uploads)     |
 ```
 
+Body return (JSON): (cái này t xóa ảnh rồi nen tùy dữ liệu trên máy )
+```json
+{
+    "message": "Hotel updated successfully",
+    "id": "101",
+    "images_added": [
+        "uploads/rooms/image_link"
+    ],
+    "images_deleted": [
+        "uploads/rooms/image_link"
+    ]
+}
+```
+### Lấy danh sách phòng trống theo thời gian nhập
+```
+GET http://localhost/bookingBackend/api/room/available?hotelId=1&people=1&checkInDate=2025-06-06&checkOutDate=2025-06-24
+```
+Params :
+- `hotelId` = id khách sạn
+- `roomId` = id phòng
+- `people` = số người
+- `checkInDate` = ngày nhận phòng
+- `checkOutDate` = ngày trả phòng
+
+Giả sử bảng bookings có data
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "room_id": 1,
+  "check_in_date": "2025-05-06",
+  "check_out_date": "2025-05-23",
+  "total_price": 100000,
+  "status": "In progress",
+  "create_at": "2025-05-26 20:22:44"
+}
+```
+
+Body return (JSON):
+```json
+[
+    {
+        "id": 2,
+        "hotelId": 1,
+        "name": "P1002",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 3,
+        "hotelId": 1,
+        "name": "P1003",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 4,
+        "hotelId": 1,
+        "name": "P1004",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 5,
+        "hotelId": 1,
+        "name": "P1005",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 6,
+        "hotelId": 1,
+        "name": "P1006",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 7,
+        "hotelId": 1,
+        "name": "P1007",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 8,
+        "hotelId": 1,
+        "name": "P1008",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 9,
+        "hotelId": 1,
+        "name": "P1009",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC,Minibar",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 10,
+        "hotelId": 1,
+        "name": "P1010",
+        "room_type": "Double",
+        "price": "1500000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-20 10:00:00",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 101,
+        "hotelId": 1,
+        "name": "P2001",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "Wi-Fi,TV,AC",
+        "created_at": "2025-05-26 12:09:24",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 102,
+        "hotelId": 1,
+        "name": "P2002",
+        "room_type": "Single",
+        "price": "1000000",
+        "amenities": "",
+        "created_at": "2025-05-26 12:14:26",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 113,
+        "hotelId": 1,
+        "name": "P2003",
+        "room_type": "Single",
+        "price": "1",
+        "amenities": "",
+        "created_at": "2025-05-28 12:07:41",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    },
+    {
+        "id": 114,
+        "hotelId": 1,
+        "name": "P2004",
+        "room_type": "Single",
+        "price": "1",
+        "amenities": "",
+        "created_at": "2025-05-28 12:24:16",
+        "images": [
+            "uploads/room/default_room.png"
+        ]
+    }
+]
+```
 
 ## Cấu trúc dự án
 
