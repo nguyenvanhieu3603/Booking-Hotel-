@@ -632,22 +632,22 @@
   - `Content-Type: application/json`
 
 - **Body** (JSON):
+
   ```json
   {
     "hotelId": 4,
     "roomId": 38,
     "checkInDate": "2025-06-01",
-    "checkOutDate": "2025-06-03",
-    "quantity": 1
+    "checkOutDate": "2025-06-03"
   }
   ```
+
 - **Các trường**:
 
   - `hotelId`: ID khách sạn (bắt buộc, số nguyên dương).
   - `roomId`: ID phòng (bắt buộc, số nguyên dương).
   - `checkInDate`: Ngày nhận phòng (bắt buộc, định dạng `YYYY-MM-DD`).
   - `checkOutDate`: Ngày trả phòng (bắt buộc, định dạng `YYYY-MM-DD`, phải sau ngày nhận phòng).
-  - `quantity`: Số lượng phòng (bắt buộc, số nguyên >= 1).
 
 - **Response mẫu (thành công)**:
 
@@ -696,7 +696,6 @@
       "checkInDate": "2025-06-01",
       "checkOutDate": "2025-06-03",
       "totalPrice": 3300000.0,
-      "quantity": 1,
       "statusId": "confirmed",
       "createdAt": "2025-05-25 17:38:55",
       "hotelName": "Budget Stay Hanoi",
@@ -747,7 +746,96 @@
   - Email thông báo hủy sẽ được gửi đến người dùng.
   - Booking đã hủy không thể khôi phục.
 
-### 13.4. Lấy Tất Cả Booking (Admin)
+#### 13.4. Kiểm Tra Phòng Có Sẵn
+
+- **Chức năng**: Kiểm tra các phòng khả dụng trong một khách sạn dựa trên ngày nhận phòng, ngày trả phòng và số lượng người.
+- **Phương thức**: GET
+- **URL**: `http://localhost/bookingBackend/api/booking/checkAvailability?hotelId=1&checkInDate=2025-06-01&checkOutDate=2025-06-05&people=1`
+- **Query Parameters**:
+  - `hotelId` (bắt buộc): ID khách sạn (số nguyên dương).
+  - `checkInDate` (bắt buộc): Ngày nhận phòng (định dạng `YYYY-MM-DD`).
+  - `checkOutDate` (bắt buộc): Ngày trả phòng (định dạng `YYYY-MM-DD`, phải sau ngày nhận phòng).
+  - `people` (bắt buộc): Số lượng người (số nguyên dương, `1` trả về phòng `Single`, `>=2` trả về phòng `Double`).
+- **Response mẫu (thành công)**:
+  ```json
+  {
+    "rooms": [
+      {
+        "id": 38,
+        "name": "Deluxe Room",
+        "room_type": "Double",
+        "price": 1650000.0,
+        "amenities": "WiFi,TV"
+      }
+    ],
+    "message": "Rooms available"
+  }
+  ```
+- **Response mẫu (không có phòng)**:
+  ```json
+  {
+    "rooms": [],
+    "message": "No rooms available"
+  }
+  ```
+- **Response lỗi**:
+  - **400 Bad Request**:
+    - Thiếu hoặc sai định dạng các trường `hotelId`, `checkInDate`, `checkOutDate`, `people`.
+    - Ngày check-out không sau ngày check-in.
+    - `people` không phải số nguyên dương.
+    - Khách sạn không tồn tại hoặc không hoạt động.
+  - **422 Unprocessable Entity**: Phương thức không phải GET.
+- **Lưu ý**:
+  - Không yêu cầu đăng nhập, có thể gọi công khai.
+  - Chỉ trả về phòng thuộc loại phù hợp với số lượng người (`Single` cho 1 người, `Double` cho 2 người trở lên).
+  - Dùng endpoint này để kiểm tra trước khi tạo booking.
+  - Đảm bảo khách sạn hoạt động (`active != 1` trong bảng `hotels`).
+
+#### 13.5. Tìm Kiếm Khách Sạn Có Sẵn
+
+- **Chức năng**: Tìm kiếm các khách sạn có ít nhất một phòng khả dụng dựa trên ngày nhận phòng, ngày trả phòng và số lượng người.
+- **Phương thức**: GET
+- **URL**: `http://localhost/bookingBackend/api/booking/searchAvailableHotels?checkInDate=2025-06-01&checkOutDate=2025-06-05&people=1`
+- **Query Parameters**:
+  - `checkInDate` (bắt buộc): Ngày nhận phòng (định dạng `YYYY-MM-DD`).
+  - `checkOutDate` (bắt buộc): Ngày trả phòng (định dạng `YYYY-MM-DD`, phải sau ngày nhận phòng).
+  - `people` (bắt buộc): Số lượng người (số nguyên dương, `1` tìm phòng `Single`, `>=2` tìm phòng `Double`).
+- **Response mẫu (thành công)**:
+  ```json
+  {
+    "hotels": [
+      {
+        "id": 4,
+        "name": "Budget Stay Hanoi",
+        "address": "123 Hoan Kiem, Hanoi",
+        "description": "Comfortable stay in the city center",
+        "rating": 4.2,
+        "images": ["Uploads/hotel/budget_hanoi.jpg"]
+      }
+    ],
+    "message": "Hotels available"
+  }
+  ```
+- **Response mẫu (không có khách sạn)**:
+  ```json
+  {
+    "hotels": [],
+    "message": "No hotels available"
+  }
+  ```
+- **Response lỗi**:
+  - **400 Bad Request**:
+    - Thiếu hoặc sai định dạng các trường `checkInDate`, `checkOutDate`, `people`.
+    - Ngày check-out không sau ngày check-in.
+    - `people` không phải số nguyên dương.
+  - **422 Unprocessable Entity**: Phương thức không phải GET.
+- **Lưu ý**:
+  - Không yêu cầu đăng nhập, có thể gọi công khai.
+  - Chỉ trả về khách sạn hoạt động (`active != 1`) với ít nhất một phòng phù hợp (`Single` cho 1 người, `Double` cho 2 người trở lên).
+  - Mặc định sử dụng ảnh `Uploads/hotel/default_hotel.jpg` nếu khách sạn không có ảnh.
+  - Dùng endpoint này để hiển thị danh sách khách sạn khả dụng trước khi chọn phòng.
+
+### 13.6. Lấy Tất Cả Booking (Admin)
 
 - **Chức năng**: Lấy danh sách tất cả booking (chỉ admin).
 - **Phương thức**: GET
@@ -782,7 +870,7 @@
   - **403 Cấm**: Không có quyền admin.
   - **401 Không Được Phép**: Chưa đăng nhập hoặc token không hợp lệ.
 
-### 13.5. Thống Kê Booking (Admin)
+### 13.7. Thống Kê Booking (Admin)
 
 - **Chức năng**: Lấy thống kê booking (chỉ admin).
 - **Phương thức**: GET
