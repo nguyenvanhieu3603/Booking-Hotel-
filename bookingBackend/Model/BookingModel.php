@@ -192,11 +192,22 @@ class BookingModel extends Database
         );
     }
 
-    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people = null)
+    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people)
     {
+        // Kiểm tra hotel active
+        $hotelModel = new HotelModel();
+        $hotel = $hotelModel->getHotelById($hotelId);
+        if (empty($hotel)) {
+            throw new Exception("Hotel not found or is not active");
+        }
+
+        // Xác định room_type dựa trên số lượng người
+        $roomType = ($people == 1) ? 'Single' : 'Double';
+
         $query = "SELECT r.id, r.name, r.room_type, r.price, r.amenities
         FROM rooms r
         WHERE r.hotelId = ?
+        AND r.room_type = ?
         AND NOT EXISTS (
             SELECT 1
             FROM bookings b
@@ -209,8 +220,41 @@ class BookingModel extends Database
             )
         )";
         return $this->select($query, [
-            "issssss",
+            "isssssss",
             $hotelId,
+            $roomType,
+            $checkInDate,
+            $checkOutDate,
+            $checkInDate,
+            $checkOutDate,
+            $checkInDate,
+            $checkOutDate
+        ]);
+    }
+    public function searchAvailableHotels($checkInDate, $checkOutDate, $people)
+    {
+        // Xác định room_type dựa trên số lượng người
+        $roomType = ($people == 1) ? 'Single' : 'Double';
+
+        $query = "SELECT DISTINCT h.id, h.name, h.address, h.description, h.rating
+        FROM hotels h
+        INNER JOIN rooms r ON h.id = r.hotelId
+        WHERE h.active != 1
+        AND r.room_type = ?
+        AND NOT EXISTS (
+            SELECT 1
+            FROM bookings b
+            WHERE b.roomId = r.id
+            AND b.statusId != 'cancelled'
+            AND (
+                (b.checkInDate BETWEEN ? AND ?)
+                OR (b.checkOutDate BETWEEN ? AND ?)
+                OR (b.checkInDate <= ? AND b.checkOutDate >= ?)
+            )
+        )";
+        return $this->select($query, [
+            "sssssss",
+            $roomType,
             $checkInDate,
             $checkOutDate,
             $checkInDate,
