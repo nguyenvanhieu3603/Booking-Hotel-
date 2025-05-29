@@ -347,4 +347,76 @@ class BookingController extends BaseController
             );
         }
     }
+    /**
+     * "/booking/check-availability" Endpoint - Check room availability
+     */
+    public function checkAvailabilityAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                $bookingModel = new BookingModel();
+
+                // Validate input
+                $requiredFields = ['hotelId', 'checkInDate', 'checkOutDate'];
+                foreach ($requiredFields as $field) {
+                    if (!isset($arrQueryStringParams[$field])) {
+                        throw new Exception("Missing required parameter: $field");
+                    }
+                }
+
+                // Kiểm tra định dạng ngày
+                if (!$this->isValidDate($arrQueryStringParams['checkInDate']) || 
+                    !$this->isValidDate($arrQueryStringParams['checkOutDate'])) {
+                    throw new Exception("Invalid date format. Use YYYY-MM-DD");
+                }
+
+                $checkIn = new DateTime($arrQueryStringParams['checkInDate']);
+                $checkOut = new DateTime($arrQueryStringParams['checkOutDate']);
+                if ($checkIn >= $checkOut) {
+                    throw new Exception("Check-out date must be after check-in date");
+                }
+
+                // Kiểm tra số lượng người (tùy chọn)
+                $people = isset($arrQueryStringParams['people']) ? (int)$arrQueryStringParams['people'] : null;
+                if ($people !== null && $people <= 0) {
+                    throw new Exception("Number of people must be greater than 0");
+                }
+
+                // Lấy danh sách phòng khả dụng
+                $availableRooms = $bookingModel->checkAvailability(
+                    $arrQueryStringParams['hotelId'],
+                    $arrQueryStringParams['checkInDate'],
+                    $arrQueryStringParams['checkOutDate'],
+                    $people
+                );
+
+                $responseData = json_encode([
+                    'rooms' => $availableRooms,
+                    'message' => empty($availableRooms) ? 'No rooms available' : 'Rooms available'
+                ]);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage();
+                $strErrorHeader = 'HTTP/1.1 400 Bad Request';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
 }
