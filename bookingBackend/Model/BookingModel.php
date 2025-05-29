@@ -192,12 +192,11 @@ class BookingModel extends Database
         );
     }
 
-    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people)
+    public function checkAvailability($hotelId, $checkInDate, $checkOutDate, $people = null)
     {
-        $query = "SELECT *
+        $query = "SELECT r.id, r.name, r.room_type, r.price, r.amenities
         FROM rooms r
         WHERE r.hotelId = ?
-        AND r.maxPeople >= ?
         AND NOT EXISTS (
             SELECT 1
             FROM bookings b
@@ -210,9 +209,8 @@ class BookingModel extends Database
             )
         )";
         return $this->select($query, [
-            "iissssss",
+            "issssss",
             $hotelId,
-            $people,
             $checkInDate,
             $checkOutDate,
             $checkInDate,
