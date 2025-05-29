@@ -360,8 +360,8 @@ class BookingController extends BaseController
             try {
                 $bookingModel = new BookingModel();
 
-                // Validate input
-                $requiredFields = ['hotelId', 'checkInDate', 'checkOutDate'];
+                // Validate required input
+                $requiredFields = ['hotelId', 'checkInDate', 'checkOutDate', 'people'];
                 foreach ($requiredFields as $field) {
                     if (!isset($arrQueryStringParams[$field])) {
                         throw new Exception("Missing required parameter: $field");
@@ -380,9 +380,9 @@ class BookingController extends BaseController
                     throw new Exception("Check-out date must be after check-in date");
                 }
 
-                // Kiểm tra số lượng người (tùy chọn)
-                $people = isset($arrQueryStringParams['people']) ? (int)$arrQueryStringParams['people'] : null;
-                if ($people !== null && $people <= 0) {
+                // Kiểm tra số lượng người
+                $people = (int)$arrQueryStringParams['people'];
+                if ($people <= 0) {
                     throw new Exception("Number of people must be greater than 0");
                 }
 
@@ -398,6 +398,129 @@ class BookingController extends BaseController
                     'rooms' => $availableRooms,
                     'message' => empty($availableRooms) ? 'No rooms available' : 'Rooms available'
                 ]);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage();
+                $strErrorHeader = 'HTTP/1.1 400 Bad Request';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+
+    public function searchAvailableHotelsAction()
+{
+    $strErrorDesc = '';
+    $requestMethod = $_SERVER["REQUEST_METHOD"];
+    $arrQueryStringParams = $this->getQueryStringParams();
+
+    if (strtoupper($requestMethod) == 'GET') {
+        try {
+            $bookingModel = new BookingModel();
+
+            // Validate required input
+            $requiredFields = ['checkInDate', 'checkOutDate', 'people'];
+            foreach ($requiredFields as $field) {
+                if (!isset($arrQueryStringParams[$field])) {
+                    throw new Exception("Missing required parameter: $field");
+                }
+            }
+
+            // Kiểm tra định dạng ngày
+            if (!$this->isValidDate($arrQueryStringParams['checkInDate']) || 
+                !$this->isValidDate($arrQueryStringParams['checkOutDate'])) {
+                throw new Exception("Invalid date format. Use YYYY-MM-DD");
+            }
+
+            $checkIn = new DateTime($arrQueryStringParams['checkInDate']);
+            $checkOut = new DateTime($arrQueryStringParams['checkOutDate']);
+            if ($checkIn >= $checkOut) {
+                throw new Exception("Check-out date must be after check-in date");
+            }
+
+            // Kiểm tra số lượng người
+            $people = (int)$arrQueryStringParams['people'];
+            if ($people <= 0) {
+                throw new Exception("Number of people must be greater than 0");
+            }
+
+            // Lấy danh sách khách sạn có sẵn
+            $availableHotels = $bookingModel->searchAvailableHotels(
+                $arrQueryStringParams['checkInDate'],
+                $arrQueryStringParams['checkOutDate'],
+                $people
+            );
+
+            // Thêm hình ảnh cho mỗi khách sạn
+            $hotelModel = new HotelModel();
+            foreach ($availableHotels as &$hotel) {
+                $images = $hotelModel->getImagesByHotelId($hotel['id']);
+                $hotel['images'] = empty($images) 
+                    ? ['Uploads/hotel/default_hotel.jpg'] 
+                    : array_column($images, 'image_url');
+            }
+
+            $responseData = json_encode([
+                'hotels' => $availableHotels,
+                'message' => empty($availableHotels) ? 'No hotels available' : 'Hotels available'
+            ]);
+        } catch (Exception $e) {
+            $strErrorDesc = $e->getMessage();
+            $strErrorHeader = 'HTTP/1.1 400 Bad Request';
+        }
+    } else {
+        $strErrorDesc = 'Method not supported';
+        $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+    }
+
+    if (!$strErrorDesc) {
+        $this->sendOutput(
+            $responseData,
+            array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+        );
+    } else {
+        $this->sendOutput(
+            json_encode(array('error' => $strErrorDesc)),
+            array('Content-Type: application/json', $strErrorHeader)
+        );
+    }
+}
+
+    /**
+     * "/booking/room-details" Endpoint - Get room details by ID
+     */
+    public function roomDetailsAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                if (!isset($arrQueryStringParams['roomId'])) {
+                    throw new Exception("Missing required parameter: roomId");
+                }
+
+                $bookingModel = new BookingModel();
+                $roomDetails = $bookingModel->getRoomDetails($arrQueryStringParams['roomId']);
+
+                if (empty($roomDetails)) {
+                    throw new Exception("Room not found");
+                }
+
+                $responseData = json_encode($roomDetails);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
                 $strErrorHeader = 'HTTP/1.1 400 Bad Request';
