@@ -38,10 +38,10 @@ function HotelListPage() {
     setStarRating(starRating === rating ? null : rating);
   };
 
-  const convertToUSD = (priceInVND) => {
-    const exchangeRate = 26000;
-    return (priceInVND / exchangeRate).toFixed(2);
-  };
+  // const convertToUSD = (priceInVND) => {
+  //   const exchangeRate = 26000;
+  //   return (priceInVND / exchangeRate).toFixed(2);
+  // };
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -231,45 +231,55 @@ function HotelListPage() {
           <div className="w-full md:w-3/4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {paginatedHotels.map((hotel) => (
-                <div
+                <Link
+                  to={`/home-list/${hotel.id}`}
                   key={hotel.id}
-                  className="relative bg-white cursor-pointer shadow-xl rounded-2xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl border border-[#e5e7eb] group"
+                  className="relative bg-white cursor-pointer shadow-xl rounded-3xl overflow-hidden transform transition-transform hover:scale-[1.03] hover:shadow-2xl border border-[#e5e7eb] group"
                 >
-                  <img
-                    src={hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/300"}
-                    alt={hotel.name}
-                    className="w-full h-48 object-cover rounded-t-2xl group-hover:brightness-90 transition"
-                    onError={(e) => { e.target.src = "https://via.placeholder.com/300"; }}
-                  />
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-[#003b95] truncate">{hotel.name}</h3>
-                    <div className="flex items-center gap-2 text-gray-500 mt-2 text-sm">
-                      <FaMapMarkerAlt className="text-[#febb02]" />
-                      <span>{hotel.address}</span>
+                  <div className="relative">
+                    <img
+                      src={hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/300"}
+                      alt={hotel.name}
+                      className="w-full h-52 object-cover rounded-t-3xl group-hover:brightness-90 transition"
+                      onError={(e) => { e.target.src = "https://via.placeholder.com/300"; }}
+                    />
+                    <div className="absolute top-3 left-3 bg-[#003b95] text-white text-xs px-3 py-1 rounded-full shadow font-semibold z-10">
+                      {hotel.rating ? (
+                        <span className="flex items-center gap-1">
+                          <FaStar className="text-[#febb02]" /> {hotel.rating}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <FaStar className="text-gray-300" /> 0
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1 mt-2">
-                      {[...Array(Math.round(hotel.rating || 0))].map((_, i) => (
-                        <FaStar key={i} className="text-[#febb02]" />
-                      ))}
-                      <span className="text-gray-600 ml-2 font-semibold">({hotel.rating || 0})</span>
+                  </div>
+                  <div className="p-6 flex flex-col h-[220px]">
+                    <h3 className="text-xl font-bold text-[#003b95] truncate mb-1">{hotel.name}</h3>
+                    <div className="flex items-center gap-2 text-gray-500 mt-1 text-sm">
+                      <FaMapMarkerAlt className="text-[#febb02]" />
+                      <span className="truncate">{hotel.address}</span>
                     </div>
                     <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">{hotel.description || "Không có mô tả"}</p>
-                    <div className="flex items-end justify-between mt-6">
-                      <p className="text-[#febb02] font-extrabold text-xl">
-                        {intl.locale === "en"
-                          ? `$${convertToUSD(hotel.price || 0)}`
-                          : `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(hotel.price || 0)}`}
-                        <span className="text-sm text-gray-500 font-normal ml-1">/đêm</span>
-                      </p>
+                    <div className="flex items-end justify-between mt-auto pt-4">
+                      {/* <div>
+                        <span className="text-[#febb02] font-extrabold text-2xl drop-shadow">
+                          {intl.locale === "en"
+                            ? `$${convertToUSD(hotel.price || 0)}`
+                            : `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(hotel.price || 0)}`}
+                        </span>
+                        <span className="text-xs text-gray-500 font-normal ml-1">/đêm</span>
+                      </div> */}
                       <Link
                         to={`/home-list/${hotel.id}`}
-                        className="bg-[#003b95] text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-[#febb02] hover:text-[#003b95] transition-all shadow"
+                        className="bg-gradient-to-r from-[#003b95] to-[#2563eb] text-white px-4 py-2 rounded-full font-bold text-sm hover:from-[#febb02] hover:to-[#fbbf24] hover:text-[#003b95] transition-all shadow"
                       >
                         <FormattedMessage id="hotellist.view_detail" defaultMessage="Xem chi tiết" />
                       </Link>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             {/* Phân trang */}

@@ -101,7 +101,7 @@ function HotelDetail() {
   return (
     <div className="bg-white min-h-screen">
       <Header />
-      <div className="container mx-auto mt-12 px-4">
+      <div className="container mx-auto mt-12 px-4 pb-12">
         {/* Ảnh khách sạn */}
         <img
           src={hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/1200x400"}
@@ -131,7 +131,7 @@ function HotelDetail() {
               {["overview", "rooms", "amenities", "reviews"].map((tab) => (
                 <button
                   key={tab}
-                  className={`px-4 py-2 font-medium text-gray-700 ${activeTab === tab ? "border-b-2 border-[#febb02] text-[#003b95]" : "hover:text-[#febb02]"}`}
+                  className={`cursor-pointer px-4 py-2 font-medium text-gray-700 ${activeTab === tab ? "border-b-2 border-[#febb02] text-[#003b95]" : "hover:text-[#febb02]"}`}
                   onClick={() => setActiveTab(tab)}
                 >
                   <FormattedMessage
@@ -150,7 +150,7 @@ function HotelDetail() {
             {/* Nội dung tab */}
             {activeTab === "overview" && (
               <div>
-                <h2 className="text-2xl font-bold mb-4 text-[#003b95]">
+                <h2 className="cupoint text-2xl font-bold mb-4 text-[#003b95]">
                   <FormattedMessage id="hoteldetail.overview" defaultMessage="Tổng Quan" />
                 </h2>
                 <p className="text-gray-600 mb-4">{hotel.description || "Không có mô tả"}</p>
@@ -170,7 +170,7 @@ function HotelDetail() {
 
             {activeTab === "rooms" && (
               <div>
-                <h2 className="text-2xl font-bold mb-4 text-[#003b95]">
+                <h2 className="cursor-pointer text-2xl font-bold mb-4 text-[#003b95]">
                   <FormattedMessage id="hoteldetail.room_types" defaultMessage="Các Loại Phòng" />
                 </h2>
                 {rooms.length > 0 ? (
@@ -218,7 +218,7 @@ function HotelDetail() {
 
             {activeTab === "amenities" && (
               <div>
-                <h2 className="text-2xl font-bold mb-4 text-[#003b95]">
+                <h2 className="cupoint text-2xl font-bold mb-4 text-[#003b95]">
                   <FormattedMessage id="hoteldetail.amenities" defaultMessage="Tiện Nghi" />
                 </h2>
                 <ul className="grid grid-cols-2 gap-4">
@@ -234,7 +234,7 @@ function HotelDetail() {
 
             {activeTab === "reviews" && (
               <div>
-                <h2 className="text-2xl font-bold mb-4 text-[#003b95]">
+                <h2 className="cupoint text-2xl font-bold mb-4 text-[#003b95]">
                   <FormattedMessage id="hoteldetail.reviews" defaultMessage="Đánh Giá" />
                 </h2>
                 <p className="text-gray-600 mb-4">
@@ -321,11 +321,11 @@ function HotelDetail() {
                 </div>
                 <button
                   onClick={checkAvailability}
-                  className="w-full px-4 py-3 text-sm font-bold text-white rounded-full bg-[#febb02] hover:bg-[#d89b00] transition-colors"
+                  className="w-full cursor-pointer px-4 py-3 text-sm font-bold text-white rounded-full bg-[#febb02] hover:bg-[#d89b00] transition-colors"
                 >
                   <FormattedMessage
                     id="hoteldetail.check_availability"
-                    defaultMessage="Check Availability"
+                    defaultMessage="Kiểm tra đặt phòng"
                   />
                 </button>
               </div>
@@ -366,6 +366,7 @@ function HotelDetail() {
           </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

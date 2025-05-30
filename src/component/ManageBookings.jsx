@@ -1,17 +1,23 @@
-import React, { } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Link} from "react-router-dom";
 import { FaUsers, FaHotel, FaCalendarCheck, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { AppContext } from "../context/ContextData";
 import Header from "../component/Header";
 import { FormattedMessage } from "react-intl";
 
-// Mock data
-const mockBookings = [
-  { id: 1, user: "Nguyễn Văn A", hotel: "Vinpearl Resort", checkIn: "2025-06-01", checkOut: "2025-06-05", status: "Confirmed" },
-  { id: 2, user: "Trần Thị B", hotel: "Hanoi La Siesta", checkIn: "2025-07-01", checkOut: "2025-07-03", status: "Pending" },
-];
-
 function ManageBookings() {
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost/bookingBackend/api/booking/all")
+      .then((res) => {
+        setBookings(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch bookings:", err);
+      });
+  }, []);
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -36,16 +42,16 @@ function ManageBookings() {
                 </tr>
               </thead>
               <tbody>
-                {mockBookings.map((booking) => (
+                {bookings.map((booking) => (
                   <tr key={booking.id} className="bg-[#f8fafc] rounded-xl shadow hover:bg-[#febb02]/10 transition">
                     <td className="p-4 rounded-l-xl">{booking.id}</td>
-                    <td className="p-4">{booking.user}</td>
-                    <td className="p-4">{booking.hotel}</td>
-                    <td className="p-4">{booking.checkIn}</td>
-                    <td className="p-4">{booking.checkOut}</td>
+                    <td className="p-4">{booking.userName}</td>
+                    <td className="p-4">{booking.hotelName}</td>
+                    <td className="p-4">{booking.checkInDate}</td>
+                    <td className="p-4">{booking.checkOutDate}</td>
                     <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${booking.status === "Confirmed" ? "bg-[#003b95] text-white" : "bg-[#febb02]/80 text-[#003b95]"}`}>
-                        {booking.status}
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${booking.statusId === "confirmed" ? "bg-[#003b95] text-white" : "bg-[#febb02]/80 text-[#003b95]"}`}>
+                        {booking.statusId}
                       </span>
                     </td>
                     <td className="p-4 rounded-r-xl">
