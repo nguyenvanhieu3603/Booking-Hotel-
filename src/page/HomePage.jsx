@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCheckCircle, FaMapMarkerAlt, FaStar } from "react-icons/fa"; // Import react-icons
@@ -10,6 +10,7 @@ import { testimonials } from "../data/mockData"; // Thêm dòng này
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import axios from "axios";
 
 function HomePage() {
   const intl = useIntl();
@@ -19,10 +20,19 @@ function HomePage() {
   const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
 
-  const convertToUSD = (priceInVND) => {
-    const exchangeRate = 26000; // 1 USD = 26,000 VND
-    return (priceInVND / exchangeRate).toFixed(2);
-  };
+  const [featuredHotels, setFeaturedHotels] = useState([]);
+  const backendUrl = "http://localhost/bookingBackend";
+
+  useEffect(() => {
+    axios.get(`${backendUrl}/api/hotel/list`)
+      .then(res => setFeaturedHotels(res.data))
+      .catch(() => setFeaturedHotels([]));
+  }, []);
+
+  // const convertToUSD = (priceInVND) => {
+  //   const exchangeRate = 26000; // 1 USD = 26,000 VND
+  //   return (priceInVND / exchangeRate).toFixed(2);
+  // };
 
   // Slick slider settings
   const feedbackSettings = {
@@ -131,13 +141,11 @@ function HomePage() {
         {/* Khách Sạn Nổi Bật */}
         <div className="mb-12 mt-9">
           <div className="flex justify-between items-center">
-            
             <h2 className="text-2xl font-bold mb-2">
               <FormattedMessage id="homepage.featured_hotels" defaultMessage="Khách Sạn Nổi Bật" />
             </h2>
-
             <Link
-              to={"/"}
+              to={"/home-list"}
               className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
             >
               <FormattedMessage id="homepage.view_all" defaultMessage="Xem tất cả" />
@@ -146,44 +154,48 @@ function HomePage() {
           <h4 className="font-light mb-6">
             <FormattedMessage id="homepage.top_choices" defaultMessage="Những lựa chọn hàng đầu cho kỳ nghỉ của bạn" />
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
-              <img
-                src="https://du-lich.chudu24.com/f/m/2105/20/khach-san-sai-gon-ha-long-64.jpg"
-                alt="Hotel 1"
-                className="w-full h-48 object-cover rounded-t-xl"
-              />
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Vinpearl Resort & Spa Hạ Long
-                </h3>
-                <p className="text-gray-500 mt-2">Hạ Long, Quảng Ninh</p>
-                <p className="text-[#febb02] font-bold text-lg mt-4">
-                  {intl.locale === "en"
-                    ? `$${convertToUSD(2990000)} / night`
-                    : "2.990.000 VND/đêm"}
-                </p>
+          <Slider
+            {...{
+              dots: true,
+              infinite: true,
+              autoplay: true,
+              speed: 500,
+              slidesToShow: 3,
+              slidesToScroll: 1,
+              arrows: false,
+              responsive: [
+                { breakpoint: 1024, settings: { slidesToShow: 2 } },
+                { breakpoint: 640, settings: { slidesToShow: 1 } }
+              ]
+            }}
+          >
+            {featuredHotels.map((hotel) => (
+              <div key={hotel.id} className="px-2">
+                <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl h-full flex flex-col">
+                  <img
+                    src={hotel.images && hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/300"}
+                    alt={hotel.name}
+                    className="w-full h-48 object-cover rounded-t-xl"
+                    onError={e => { e.target.src = "https://via.placeholder.com/300"; }}
+                  />
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">{hotel.name}</h3>
+                    <div className="flex items-center gap-2 text-gray-500 mt-2 text-sm">
+                      <FaMapMarkerAlt className="text-[#febb02]" />
+                      <span className="truncate">{hotel.address}</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-2">
+                      {[...Array(Math.round(hotel.rating || 0))].map((_, i) => (
+                        <FaStar key={i} className="text-[#febb02]" />
+                      ))}
+                      <span className="text-gray-600 ml-2 font-semibold">({hotel.rating || 0})</span>
+                    </div>
+                    <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">{hotel.description || "Không có mô tả"}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
-              <img
-                src="https://royalhalonghotel.com/wp-content/uploads/2023/05/Royal-Ha-Long-slider-02.jpg"
-                alt="Hotel 2"
-                className="w-full h-48 object-cover rounded-t-xl"
-              />
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Hanoi La Siesta
-                </h3>
-                <p className="text-gray-500 mt-2">Hà Nội</p>
-                <p className="text-[#febb02] font-bold text-lg mt-4">
-                  {intl.locale === "en"
-                    ? `$${convertToUSD(1690000)} / night`
-                    : "1.690.000 VND/đêm"}
-                </p>
-              </div>
-            </div>
-          </div>
+            ))}
+          </Slider>
         </div>
 
         {/* Điểm Đến Phổ Biến */}

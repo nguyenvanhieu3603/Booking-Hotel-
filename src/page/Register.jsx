@@ -115,7 +115,7 @@ function Register() {
               {otpError && <div className="text-red-600 text-sm mb-2">{otpError}</div>}
               <button
                 type="submit"
-                className="w-full bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition"
+                className="w-full cursor-pointer bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition"
               >
                 Xác minh
               </button>
@@ -192,7 +192,7 @@ function Register() {
           )}
           <button
             type="submit"
-            className="w-full bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition"
+            className="w-full cursor-pointer bg-[#febb02] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#e0a800] transition"
             disabled={isLoading}
           >
             {isLoading ? "Đang đăng ký..." : "Đăng ký"}
