@@ -256,6 +256,185 @@ Body (JSON):
 ]
 ````
 
+#### Lấy danh sách khách sạn hoạt động theo tỉnh
+```
+GET http://localhost/bookingBackend/api/hotel/province?province=Hanoi
+```
+
+Query Parameters:
+- `province`: tỉnh cần lấy danh sách khách sạn
+
+```json
+[
+    {
+        "id": 1,
+        "name": "Hanoi Sunset Hotel",
+        "address": "45 Tran Phu, Hanoi",
+        "description": "Khách sạn giá rẻ gần trung tâm thành phố.",
+        "rating": 2.5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Lake View Inn",
+        "address": "23 Hoan Kiem, Hanoi",
+        "description": "Tầm nhìn tuyệt đẹp ra hồ Hoàn Kiếm.",
+        "rating": 3,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Old Quarter Lodge",
+        "address": "78 Hang Bac, Hanoi",
+        "description": "Phong cách truyền thống trong khu phố cổ.",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    }
+]
+```
+
+#### Lấy danh sách khách sạn hoạt động với bộ lọc đánh giá (tất cả các tỉnh) 
+
+```
+GET http://localhost/bookingBackend/api/hotel/ratingFilter?rating=4
+```
+Query Parameters:
+
+- `rating`: Đánh giá của khách sạn cần lấy thông tin
+
+Body (JSON):
+
+```json
+[
+    {
+        "id": 3,
+        "name": "Old Quarter Lodge",
+        "address": "78 Hang Bac, Hanoi",
+        "description": "Phong cách truyền thống trong khu phố cổ.",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 5,
+        "name": "Royal Garden Hotel",
+        "address": "5 Phan Dinh Phung, Hanoi",
+        "description": "Khu nghỉ dưỡng sang trọng với vườn cây.",
+        "rating": 5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Peaceful Stay",
+        "address": "15 Cau Giay, Hanoi",
+        "description": "Không gian yên tĩnh và dịch vụ thân thiện.",
+        "rating": 4.2,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 11,
+        "name": "hotel 5 sao",
+        "address": "Ha Noi",
+        "description": "Ha Noi",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:34:57",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    }
+]
+```
+
+#### Lấy danh sách khách sạn hoạt động trong một tỉnh với bộ lọc đánh giá
+
+```
+GET http://localhost/bookingBackend/api/hotel/search?province=hanoi&rating=4
+```
+
+Query Parameters:
+
+- `province`: tỉnh cần lấy danh sách khách sạn
+- `rating`: Đánh giá của khách sạn cần lấy thông tin
+
+Body (JSON):
+
+```json
+[
+    {
+        "id": 3,
+        "name": "Old Quarter Lodge",
+        "address": "78 Hang Bac, Hanoi",
+        "description": "Phong cách truyền thống trong khu phố cổ.",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 5,
+        "name": "Royal Garden Hotel",
+        "address": "5 Phan Dinh Phung, Hanoi",
+        "description": "Khu nghỉ dưỡng sang trọng với vườn cây.",
+        "rating": 5,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Peaceful Stay",
+        "address": "15 Cau Giay, Hanoi",
+        "description": "Không gian yên tĩnh và dịch vụ thân thiện.",
+        "rating": 4.2,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 13,
+        "name": "update_name",
+        "address": "update_address2, Hanoi",
+        "description": "update_description",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-06-02 13:22:12",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    }
+]
+```
+
 #### Xem chi tiết khách sạn
 
 ```
@@ -586,19 +765,47 @@ Body return (JSON):
 ]
 ```
 
+#### Đếm số khách sạn trong 1 tỉnh
+```
+GET http://localhost/bookingBackend/api/hotel/provinceCount?province=Hanoi
+```
+
+Query Parameters:
+- `province`: tỉnh cần đếm khách sạn
+
+Body return (JSON):
+```json (sai lệch do khác CSDL)
+{
+    "count": 11
+}
+```
+
 #### Tạo khách sạn
 ```
 POST http://localhost/bookingBackend/api/hotel/create
+```
+
+Body return (JSON):
+```json
+{
+    "id": "hotel id",
+    "images": [
+        "image_link",
+        "image_link"
+    ],
+    "message": "Hotel created successfully"
+}
 ```
 
 content-type: multipart/form-data
 
 Body sent (form-data) :
 ```
-| Key           | Type     | Required | Value                                  |
+| Key           | Type     | Required  Value                                   |
 | ------------- | -------- | -------- | ---------------------------------------|
 | `name`        | `text`   |   Yes    | Name of the hotel                      |
-| `address`     | `text`   |   Yes    | Address of the hotel                   |
+| `road`        | `text`   |   Yes    | Road address of the hotel              |
+| `province`    | `text`   |   Yes    | Hanoi/Danang/...                       |
 | `description` | `text`   |   No     | Description of the hotel               |
 | `rating`      | `text`   |   No     | Rating (0.0 - 5.0)                     |
 | `images[]`    | `file`   |   No     | Image files (optional uploads)         |
@@ -638,15 +845,16 @@ POST http://localhost/bookingBackend/api/hotel/update?id=13
 ```
 content-type: multipart/form-data
 
-Params :
-- `id` = 13
+Query Parameters:
+- `id`: ID của khách sạn cần chuyển trạng thái
 
 Body sent (form-data) :
 ```
 | Key                   | Type     | Required | Value                                          |
 | -------------         | -------- | -------- | ---------------------------------------        |
 | `name`                | `text`   |   Yes    | Update_name                                    |
-| `address`             | `text`   |   Yes    | HaNoi                                          |
+| `road`                | `text`   |   Yes    | Road address of the hotel                      |
+| `province`            | `text`   |   Yes    | Hanoi/Danang/...                               |
 | `description`         | `text`   |   No     | Description                                    |
 | `rating`              | `text`   |   No     | 4                                              |
 | `images[]`            | `file`   |   No     | Image files added(optional uploads)            | 
@@ -892,7 +1100,7 @@ POST http://localhost/bookingBackend/api/room/update/?hotelId=1&roomId=101
 ```
 content-type: multipart/form-data
 
-Params :
+Query Parameters:
 - `hotelId` = id khách sạn
 - `roomId` = id phòng
 
@@ -925,7 +1133,7 @@ Body return (JSON): (cái này t xóa ảnh rồi nen tùy dữ liệu trên má
 ```
 GET http://localhost/bookingBackend/api/room/available?hotelId=1&people=1&checkInDate=2025-06-06&checkOutDate=2025-06-24
 ```
-Params :
+Query Parameters:
 - `hotelId` = id khách sạn
 - `roomId` = id phòng
 - `people` = số người
