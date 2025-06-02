@@ -15,6 +15,7 @@ import ManageBookings from "../component/ManageBookings";
 import AdminProfile from "../component/AdminProfile";
 import Dashboard from "../page/Dashboard";
 import AdminDashboard from "../component/AdminDashboard";
+import DestinationsPage from "../page/DestinationsPage";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
@@ -29,6 +30,10 @@ function RouterWrapper() {
         {
           path: "about-us",
           element: <AboutUs />,
+        },
+        {
+          path: "destinations",
+          element: <DestinationsPage />,
         },
         {
           path: "home-list",
