@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCheckCircle, FaMapMarkerAlt, FaStar } from "react-icons/fa"; // Import react-icons
+import { FaCheckCircle, FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import Footer from "../component/Footer";
 import Header from "../component/Header";
 import { Link } from "react-router-dom";
-import { FormattedMessage, useIntl } from "react-intl"; // Import FormattedMessage
-import { testimonials } from "../data/mockData"; // Thêm dòng này
+import { FormattedMessage, useIntl } from "react-intl";
+import { testimonials } from "../data/mockData";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -14,27 +14,52 @@ import axios from "axios";
 
 function HomePage() {
   const intl = useIntl();
-
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
-
   const [featuredHotels, setFeaturedHotels] = useState([]);
+  const [destinationCounts, setDestinationCounts] = useState({
+    "Hạ Long": 40,
+    "Đà Nẵng": 50,
+    "TP Hồ Chí Minh": 60,
+  });
   const backendUrl = "http://localhost/bookingBackend";
 
+  // Lấy danh sách khách sạn nổi bật
   useEffect(() => {
-    axios.get(`${backendUrl}/api/hotel/list`)
-      .then(res => setFeaturedHotels(res.data))
+    axios
+      .get(`${backendUrl}/api/hotel/list`)
+      .then((res) => setFeaturedHotels(res.data))
       .catch(() => setFeaturedHotels([]));
   }, []);
 
-  // const convertToUSD = (priceInVND) => {
-  //   const exchangeRate = 26000; // 1 USD = 26,000 VND
-  //   return (priceInVND / exchangeRate).toFixed(2);
-  // };
+  // Lấy số lượng khách sạn theo thành phố từ API
+  useEffect(() => {
+    const cities = ["Ha Long", "Da Nang", "Ho Chi Minh"];
+    const fetchCounts = async () => {
+      const counts = {};
+      for (const city of cities) {
+        try {
+          const response = await axios.get(`${backendUrl}/api/hotel/count-by-city`, {
+            params: { city },
+          });
+          counts[city] = response.data.hotel_count;
+        } catch (error) {
+          console.error(`Error fetching count for ${city}:`, error);
+          counts[city] = 0; // Mặc định là 0 nếu lỗi
+        }
+      }
+      setDestinationCounts({
+        "Hạ Long": counts["Ha Long"],
+        "Đà Nẵng": counts["Da Nang"],
+        "TP Hồ Chí Minh": counts["Ho Chi Minh"],
+      });
+    };
+    fetchCounts();
+  }, []);
 
-  // Slick slider settings
+  // Cấu hình slider cho khách sạn nổi bật và phản hồi khách hàng
   const feedbackSettings = {
     dots: true,
     infinite: true,
@@ -44,24 +69,17 @@ function HomePage() {
     slidesToScroll: 1,
     arrows: false,
     responsive: [
-      {
-        breakpoint: 1024,
-        settings: { slidesToShow: 2 }
-      },
-      {
-        breakpoint: 640,
-        settings: { slidesToShow: 1 }
-      }
-    ]
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 640, settings: { slidesToShow: 1 } },
+    ],
   };
 
   return (
     <div className="">
       {/* Hero */}
       <div className="bg-cover bg-center text-white h-205 bg-[url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80')]">
-        {/* Header */}
         <Header />
-        <div className=" text-white mt-[150px] py-8">
+        <div className="text-white mt-[150px] py-8">
           <div className="container mx-auto">
             <h1 className="text-4xl font-bold text-center mb-4">
               <FormattedMessage id="homepage.find_next_stay" defaultMessage="Tìm chỗ nghỉ tiếp theo" />
@@ -104,13 +122,10 @@ function HomePage() {
                   <i className="fas fa-user text-gray-500"></i>
                   <select
                     value={guests.adults}
-                    onChange={(e) =>
-                      setGuests({ ...guests, adults: parseInt(e.target.value) })
-                    }
+                    onChange={(e) => setGuests({ ...guests, adults: parseInt(e.target.value) })}
                     className="outline-none text-gray-700 bg-transparent cursor-pointer min-w-[110px]"
-
                   >
-                    <option value={1} className="">
+                    <option value={1}>
                       <FormattedMessage id="homepage.one_guest" defaultMessage="1 Khách" />
                     </option>
                     <option value={2}>
@@ -165,8 +180,8 @@ function HomePage() {
               arrows: false,
               responsive: [
                 { breakpoint: 1024, settings: { slidesToShow: 2 } },
-                { breakpoint: 640, settings: { slidesToShow: 1 } }
-              ]
+                { breakpoint: 640, settings: { slidesToShow: 1 } },
+              ],
             }}
           >
             {featuredHotels.map((hotel) => (
@@ -176,7 +191,9 @@ function HomePage() {
                     src={hotel.images && hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/300"}
                     alt={hotel.name}
                     className="w-full h-48 object-cover rounded-t-xl"
-                    onError={e => { e.target.src = "https://via.placeholder.com/300"; }}
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/300";
+                    }}
                   />
                   <div className="p-6 flex-1 flex flex-col">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">{hotel.name}</h3>
@@ -190,7 +207,9 @@ function HomePage() {
                       ))}
                       <span className="text-gray-600 ml-2 font-semibold">({hotel.rating || 0})</span>
                     </div>
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">{hotel.description || "Không có mô tả"}</p>
+                    <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">
+                      {hotel.description || "Không có mô tả"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -205,7 +224,7 @@ function HomePage() {
               <FormattedMessage id="homepage.popular_destinations" defaultMessage="Điểm Đến Phổ Biến" />
             </h2>
             <Link
-              to={"/"}
+              to={"/destinations"}
               className="bg-[#febb02] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e0a800] transition"
             >
               <FormattedMessage id="homepage.view_all" defaultMessage="Xem tất cả" />
@@ -223,7 +242,7 @@ function HomePage() {
               />
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-800">Hạ Long</h3>
-                <p className="text-gray-500 mt-2">40 khách sạn</p>
+                <p className="text-gray-500 mt-2">{destinationCounts["Hạ Long"]} khách sạn</p>
               </div>
             </div>
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -234,7 +253,7 @@ function HomePage() {
               />
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-800">Đà Nẵng</h3>
-                <p className="text-gray-500 mt-2">50 khách sạn</p>
+                <p className="text-gray-500 mt-2">{destinationCounts["Đà Nẵng"]} khách sạn</p>
               </div>
             </div>
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -244,14 +263,11 @@ function HomePage() {
                 className="w-full h-48 object-cover rounded-t-xl"
               />
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  TP Hồ Chí Minh
-                </h3>
-                <p className="text-gray-500 mt-2">60 khách sạn</p>
+                <h3 className="text-lg font-semibold text-gray-800">TP Hồ Chí Minh</h3>
+                <p className="text-gray-500 mt-2">{destinationCounts["TP Hồ Chí Minh"]} khách sạn</p>
               </div>
             </div>
           </div>
-        
         </div>
 
         {/* Tại Sao Chọn Booking */}
@@ -266,7 +282,10 @@ function HomePage() {
                 <FormattedMessage id="homepage.best_choices" defaultMessage="Lựa Chọn Tốt Nhất" />
               </h3>
               <p className="text-gray-500">
-                <FormattedMessage id="homepage.best_choices_desc" defaultMessage="Hợp tác với các khách sạn hàng đầu để đảm bảo chất lượng dịch vụ." />
+                <FormattedMessage
+                  id="homepage.best_choices_desc"
+                  defaultMessage="Hợp tác với các khách sạn hàng đầu để đảm bảo chất lượng dịch vụ."
+                />
               </p>
             </div>
             <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
@@ -275,7 +294,10 @@ function HomePage() {
                 <FormattedMessage id="homepage.convenient_locations" defaultMessage="Vị Trí Thuận Tiện" />
               </h3>
               <p className="text-gray-500">
-                <FormattedMessage id="homepage.convenient_locations_desc" defaultMessage="Các khách sạn của chúng tôi nằm ở những vị trí đặc sắc." />
+                <FormattedMessage
+                  id="homepage.convenient_locations_desc"
+                  defaultMessage="Các khách sạn của chúng tôi nằm ở những vị trí đặc sắc."
+                />
               </p>
             </div>
             <div className="text-center flex flex-col items-center bg-white shadow-md rounded-lg p-6">
@@ -284,7 +306,10 @@ function HomePage() {
                 <FormattedMessage id="homepage.trustworthy_reviews" defaultMessage="Đánh Giá Tin Cậy" />
               </h3>
               <p className="text-gray-500">
-                <FormattedMessage id="homepage.trustworthy_reviews_desc" defaultMessage="Đánh giá từ các khách hàng giúp bạn lựa chọn chính xác." />
+                <FormattedMessage
+                  id="homepage.trustworthy_reviews_desc"
+                  defaultMessage="Đánh giá từ các khách hàng giúp bạn lựa chọn chính xác."
+                />
               </p>
             </div>
           </div>

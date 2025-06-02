@@ -69,7 +69,7 @@ function Header() {
             <FormattedMessage id="header.hotels" defaultMessage="Khách sạn" />
           </Link>
           <Link
-            to={"/"}
+            to={"/destinations"}
             className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition"
           >
             <FormattedMessage
