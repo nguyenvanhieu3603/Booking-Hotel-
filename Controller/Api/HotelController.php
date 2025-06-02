@@ -51,6 +51,61 @@ class HotelController extends BaseController
             );
         }
     }
+
+    /**
+     * "/hotel/province" Endpoint - List hotels by province
+     */
+    public function provinceAction(){
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                if (!isset($arrQueryStringParams['province'])) {
+                    throw new Exception('Province parameter is required');
+                }
+
+                $hotelModel = new HotelModel();
+                $province = $arrQueryStringParams['province'];
+
+                $arrHotels = $hotelModel->getHotelsByAddress($province);
+
+                // Add hotel images to each hotel
+                foreach ($arrHotels as &$hotel) {
+                    $images = $hotelModel->getImagesByHotelId($hotel['id']);
+
+                    // If no images found, add default
+                    if (empty($images)) {
+                        $hotel['images'] = ['uploads/hotel/default_hotel.png'];
+                    } else {
+                        // Convert flat image_url results to array
+                        $hotel['images'] = array_column($images, 'image_url');
+                    }
+                }
+
+                $responseData = json_encode($arrHotels);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
     /**
      * "/hotel/all" Endpoint - Get list of hotels and room
      */

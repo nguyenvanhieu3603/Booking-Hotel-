@@ -13,6 +13,15 @@ class HotelModel extends Database
         return $this->select("SELECT * FROM hotels ORDER BY id ASC ", ["i"]);
     }
 
+    public function getHotelsByAddress($address)
+    {
+        return $this->select(
+            "SELECT * FROM hotels WHERE address LIKE ? AND active != 1 ORDER BY id ASC",
+            ["s", "%$address%"]
+        );
+    }
+
+
     public function getHotelById($hotelId)
     { //Only active hotels
         return $this->select("SELECT * FROM hotels WHERE id = ? AND active != 1", ["i", $hotelId]);
@@ -62,7 +71,8 @@ class HotelModel extends Database
     }
     public function deleteHotelImage($hotelId, $imagePath)
     {
-        return $this->delete("DELETE FROM hotel_images WHERE hotel_id = ? AND image_url = ?",
+        return $this->delete(
+            "DELETE FROM hotel_images WHERE hotel_id = ? AND image_url = ?",
             ["is", $hotelId, $imagePath]
         );
         if (file_exists($imagePath)) {

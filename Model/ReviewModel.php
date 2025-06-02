@@ -12,16 +12,16 @@ class ReviewModel extends Database
         );
     }
 
-    public function getReviewsByHotel($hotelId, $limit = 10)
+    public function getReviewsByHotel($hotelId)
     {
         return $this->select(
             "SELECT r.*, u.fullName as userName 
             FROM reviews r
             JOIN users u ON r.userId = u.id
             WHERE r.hotelId = ?
-            ORDER BY r.createdAt DESC
-            LIMIT ?",
-            ["ii", $hotelId, $limit]
+            ORDER BY r.createdAt DESC"
+            ,
+            ["i", $hotelId]
         );
     }
 
