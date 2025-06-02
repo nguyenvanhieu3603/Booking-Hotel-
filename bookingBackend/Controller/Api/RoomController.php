@@ -19,12 +19,15 @@ class RoomController extends BaseController
                 }
 
                 $hotelId = $arrQueryStringParams['hotelId'];
-                $intLimit = 10;
-                if (isset($arrQueryStringParams['limit']) && $arrQueryStringParams['limit']) {
-                    $intLimit = $arrQueryStringParams['limit'];
+                $arrRooms = $roomModel->getRoomsByHotelId($hotelId);
+
+                foreach ($arrRooms as &$room) {
+                    $roomImages = $roomModel->getImagesByRoomId($room['id']);
+                    $room['images'] = !empty($roomImages)
+                        ? array_column($roomImages, 'image_url')
+                        : ['uploads/room/default_room.png'];
                 }
 
-                $arrRooms = $roomModel->getRoomsByHotel($hotelId, $intLimit);
                 $responseData = json_encode($arrRooms);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
@@ -60,6 +63,7 @@ class RoomController extends BaseController
         if (strtoupper($requestMethod) == 'GET') {
             try {
                 $bookingModel = new BookingModel();
+                $roomModel = new RoomModel();
                 if (
                     !isset($arrQueryStringParams['hotelId']) ||
                     !isset($arrQueryStringParams['people']) ||
@@ -91,6 +95,14 @@ class RoomController extends BaseController
                 }
 
                 $availability = $bookingModel->checkAvailability($hotelId, $people, $checkInDate, $checkOutDate);
+
+                foreach ($availability as &$room) {
+                    $roomImages = $roomModel->getImagesByRoomId($room['id']);
+                    $room['images'] = !empty($roomImages)
+                        ? array_column($roomImages, 'image_url')
+                        : ['uploads/room/default_room.png'];
+                }
+
                 $responseData = json_encode($availability);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
@@ -128,20 +140,25 @@ class RoomController extends BaseController
                 $requestData = $_POST;
                 $validRoomTypes = ['Single', 'Double'];
 
+
+                $hotelId = $_GET['hotelId'];
+                if (empty($hotelId)) {
+                    throw new Exception('Missing required parameter: hotelId');
+                }
+
                 if (
-                    empty($requestData['hotelId']) ||
                     empty($requestData['name']) ||
                     empty($requestData['roomType']) ||
-                    empty($requestData['price']) 
+                    empty($requestData['price'])
                 ) {
-                    throw new Exception('Missing required fields: hotelId, name, roomType, price');
+                    throw new Exception('Missing required fields:  name, roomType, price');
                 }
 
                 if (!in_array($requestData['roomType'], $validRoomTypes)) {
                     throw new Exception('Invalid room type. Must be "Single" or "Double".');
                 }
 
-                if (!is_numeric($requestData['price']) ) {
+                if (!is_numeric($requestData['price'])) {
                     throw new Exception('Price must be numeric values');
                 }
 
@@ -149,11 +166,11 @@ class RoomController extends BaseController
                     throw new Exception('Price must be greater than zero');
                 }
 
-                if ($roomModel->isRoomNameExists($requestData['hotelId'], $requestData['name'])) {
+                if ($roomModel->isRoomNameExists($hotelId, $requestData['name'])) {
                     throw new Exception('A room with this name already exists for this hotel.');
                 }
                 $roomId = $roomModel->createRoom(
-                    $requestData['hotelId'],
+                    $hotelId,
                     $requestData['name'],
                     $requestData['roomType'],
                     $requestData['price'],
@@ -204,13 +221,14 @@ class RoomController extends BaseController
         }
     }
 
-        /**
+    /**
      * "/room/update" Endpoint - Update existing room
      */
-     public function updateAction()
+    public function updateAction()
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $queryParams = $this->getQueryStringParams();
 
         if (strtoupper($requestMethod) == 'POST') {
             try {
@@ -218,20 +236,29 @@ class RoomController extends BaseController
                 $requestData = $_POST;
                 $validRoomTypes = ['Single', 'Double'];
 
+                $hotelId = $_GET['hotelId'];
+                $roomId = $_GET['roomId'];
+
+                if (empty($roomId)) {
+                    throw new Exception('Missing required parameter: roomId');
+                }
+                if (empty($hotelId)) {
+                    throw new Exception('Missing required parameter: hotelId');
+                }
+
                 if (
-                    empty($requestData['hotelId']) ||
                     empty($requestData['name']) ||
                     empty($requestData['roomType']) ||
-                    empty($requestData['price']) 
+                    empty($requestData['price'])
                 ) {
-                    throw new Exception('Missing required fields: hotelId, name, roomType, price');
+                    throw new Exception('Missing required fields: name, roomType, price');
                 }
 
                 if (!in_array($requestData['roomType'], $validRoomTypes)) {
                     throw new Exception('Invalid room type. Must be "Single" or "Double".');
                 }
 
-                if (!is_numeric($requestData['price']) ) {
+                if (!is_numeric($requestData['price'])) {
                     throw new Exception('Price must be numeric values');
                 }
 
@@ -239,17 +266,32 @@ class RoomController extends BaseController
                     throw new Exception('Price must be greater than zero');
                 }
 
-                if ($roomModel->isRoomNameExists($requestData['hotelId'], $requestData['name'])) {
+                if ($roomModel->isRoomNameExists($hotelId, $requestData['name'], $roomId)) {
                     throw new Exception('A room with this name already exists for this hotel.');
                 }
-                $roomId = $roomModel->updateRoom(
-                    $requestData['hotelId'],
+                $roomModel->updateRoom(
                     $requestData['name'],
                     $requestData['roomType'],
                     $requestData['price'],
-                    $requestData['amenities'] ?? null
+                    $requestData['amenities'] ?? null,
+                    $roomId
                 );
                 $imagePaths = [];
+                $deletedImages = [];
+
+                if (!empty($_POST['delete_images']) && is_array($_POST['delete_images'])) {
+                    foreach ($_POST['delete_images'] as $imgPath) {
+                        $realPath = realpath($imgPath);
+                        if ($realPath && strpos($realPath, realpath('uploads/rooms/')) === 0) {
+                            $roomModel->deleteRoomImage($roomId, $imgPath); // delete from DB
+                            if (file_exists($imgPath)) {
+                                unlink($imgPath); // delete from filesystem
+                            }
+                            $deletedImages[] = $imgPath; // collect for response
+                        }
+                    }
+                }
+
                 if (!empty($_FILES['images'])) {
                     $uploadDir = 'uploads/rooms/';
                     if (!file_exists($uploadDir)) {
@@ -268,9 +310,10 @@ class RoomController extends BaseController
                 }
 
                 $responseData = json_encode([
+                    'message' => 'Room updated successfully',
                     'id' => $roomId,
                     'images' => $imagePaths,
-                    'message' => 'Room created successfully'
+                    'images_deleted' => $deletedImages
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
