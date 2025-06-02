@@ -16,11 +16,18 @@ class HotelModel extends Database
     public function getHotelsByAddress($address)
     {
         return $this->select(
-            "SELECT * FROM hotels WHERE address LIKE ? AND active != 1 ORDER BY id ASC",
-            ["s", "%$address%"]
+            "SELECT * FROM hotels WHERE TRIM(SUBSTRING_INDEX(address, ',', -1)) = ? ORDER BY id ASC",
+            ["s", "$address"]
         );
     }
 
+    public function getHotelByRating($rating)
+    {
+        return $this->select(
+            "SELECT * FROM hotels WHERE rating >= ? AND active != 1 ORDER BY id ASC",
+            ["d", $rating]
+        );
+    }
 
     public function getHotelById($hotelId)
     { //Only active hotels
@@ -69,6 +76,7 @@ class HotelModel extends Database
             ["i", $hotelId]
         );
     }
+
     public function deleteHotelImage($hotelId, $imagePath)
     {
         return $this->delete(
@@ -78,5 +86,22 @@ class HotelModel extends Database
         if (file_exists($imagePath)) {
             unlink($imagePath);
         }
+    }
+
+    public function countHotelsByProvince($address)
+    {
+        $result = $this->select(
+            "SELECT COUNT(*) as count FROM hotels WHERE TRIM(SUBSTRING_INDEX(address, ',', -1)) = ?",
+            ["s", $address]
+        );
+        return $result[0]['count'] ?? 0;
+    }
+
+    public function filterHotelsByRatingAndProvince($province, $rating)
+    {
+        return $this->select("SELECT * FROM hotels 
+        WHERE active != 1 
+        AND TRIM(SUBSTRING_INDEX(address, ',', -1)) = ?
+        AND rating >= ? ORDER BY id ASC", ["sd", $province, $rating]);
     }
 }

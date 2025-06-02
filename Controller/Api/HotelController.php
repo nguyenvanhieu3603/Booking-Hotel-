@@ -55,7 +55,8 @@ class HotelController extends BaseController
     /**
      * "/hotel/province" Endpoint - List hotels by province
      */
-    public function provinceAction(){
+    public function provinceAction()
+    {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
         $arrQueryStringParams = $this->getQueryStringParams();
@@ -70,6 +71,157 @@ class HotelController extends BaseController
                 $province = $arrQueryStringParams['province'];
 
                 $arrHotels = $hotelModel->getHotelsByAddress($province);
+
+                // Add hotel images to each hotel
+                foreach ($arrHotels as &$hotel) {
+                    $images = $hotelModel->getImagesByHotelId($hotel['id']);
+
+                    // If no images found, add default
+                    if (empty($images)) {
+                        $hotel['images'] = ['uploads/hotel/default_hotel.png'];
+                    } else {
+                        // Convert flat image_url results to array
+                        $hotel['images'] = array_column($images, 'image_url');
+                    }
+                }
+
+                $responseData = json_encode($arrHotels);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+    /**
+     * "/hotel/provinceCount" Endpoint - Count hotels by province
+     */
+    public function provinceCountAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                if (!isset($arrQueryStringParams['province'])) {
+                    throw new Exception('Province parameter is required');
+                }
+                if (!preg_match('/^[a-zA-Z\s]+$/', $arrQueryStringParams['province']) || empty($arrQueryStringParams['province'])) {
+                    throw new Exception('Invalid province name');
+                }
+                $hotelModel = new HotelModel();
+                $province = $arrQueryStringParams['province'];
+
+                $count = $hotelModel->countHotelsByProvince($province);
+
+                $responseData = json_encode(['count' => $count]);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+    /**
+     * "/hotel/ratingFilter" Endpoint - List hotels by rating
+     */
+    public function ratingFilterAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                if (!isset($arrQueryStringParams['rating'])) {
+                    throw new Exception('Rating parameter is required');
+                }
+
+                $hotelModel = new HotelModel();
+                $rating = $arrQueryStringParams['rating'];
+
+                $arrHotels = $hotelModel->getHotelByRating($rating);
+
+                // Add hotel images to each hotel
+                foreach ($arrHotels as &$hotel) {
+                    $images = $hotelModel->getImagesByHotelId($hotel['id']);
+
+                    // If no images found, add default
+                    if (empty($images)) {
+                        $hotel['images'] = ['uploads/hotel/default_hotel.png'];
+                    } else {
+                        // Convert flat image_url results to array
+                        $hotel['images'] = array_column($images, 'image_url');
+                    }
+                }
+
+                $responseData = json_encode($arrHotels);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+    /**
+     * "/hotel/search" Endpoint - Search hotels by rating and province
+     */
+    public function searchAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+        $arrQueryStringParams = $this->getQueryStringParams();
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                $hotelModel = new HotelModel();
+                $province = !empty($arrQueryStringParams['province']) ? $arrQueryStringParams['province'] : 'hanoi';
+                $rating = isset($arrQueryStringParams['rating']) ? $arrQueryStringParams['rating'] : '';
+
+                $arrHotels = $hotelModel->filterHotelsByRatingAndProvince($province, $rating);
 
                 // Add hotel images to each hotel
                 foreach ($arrHotels as &$hotel) {
@@ -177,13 +329,13 @@ class HotelController extends BaseController
                 $hotelModel = new HotelModel();
                 $requestData = $_POST;
 
-                if (!isset($requestData['name']) || !isset($requestData['address'])) {
-                    throw new Exception('Missing required fields: name, address');
+                if (!isset($requestData['name']) || !isset($requestData['road'])) {
+                    throw new Exception('Missing required fields: name, road');
                 }
 
                 $hotelId = $hotelModel->createHotel(
                     $requestData['name'],
-                    $requestData['address'],
+                    $requestData['road'] . ', ' . $requestData['province'] ?? "Hanoi",
                     $requestData['description'] ?? null,
                     $requestData['rating'] ?? 0.0
                 );
@@ -355,16 +507,16 @@ class HotelController extends BaseController
                     throw new Exception('Invalid or missing hotel ID in URL');
                 }
 
-                if (!isset($_POST['name']) || !isset($_POST['address'])) {
-                    throw new Exception('Missing required fields: name, address');
+                if (!isset($_POST['name']) || !isset($_POST['road'])) {
+                    throw new Exception('Missing required fields: name, road');
                 }
-
+                $address = $_POST['road'] . ', ' . ($_POST['province'] ?? 'Hanoi');
                 $hotelModel = new HotelModel();
 
                 $hotelModel->updateHotel(
                     $hotelId,
                     $_POST['name'],
-                    $_POST['address'],
+                    $address,
                     $_POST['description'] ?? null,
                     $_POST['rating'] ?? 0.0
                 );
