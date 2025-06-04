@@ -789,6 +789,55 @@ Body return (JSON):
 ]
 ```
 
+#### Xem tất cả khách sạn trong 1 tỉnh
+```
+GET http://localhost/bookingBackend/api/hotel/province?province=Hanoi
+```
+
+Query Parameters:
+- `province`: tỉnh cần lấy khách sạn
+
+Body return (JSON):
+```json (sai lệch do khác CSDL)
+[
+    {
+        "id": 1,
+        "name": "Hanoi Sunset Hotel",
+        "address": "45 Tran Phu, Hanoi",
+        "description": "Khách sạn giá rẻ gần trung tâm thành phố.",
+        "rating": 2.5,
+        "active": 0,
+        "created_at": "2025-06-04 16:01:02",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Lake View Inn",
+        "address": "23 Hoan Kiem, Hanoi",
+        "description": "Tầm nhìn tuyệt đẹp ra hồ Hoàn Kiếm.",
+        "rating": 3,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Old Quarter Lodge",
+        "address": "78 Hang Bac, Hanoi",
+        "description": "Phong cách truyền thống trong khu phố cổ.",
+        "rating": 4,
+        "active": 0,
+        "created_at": "2025-05-23 10:09:03",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ]
+    }
+]
+```
 
 #### Đếm số khách sạn trong 1 tỉnh
 ```
@@ -861,6 +910,20 @@ Body return (JSON):
 ```json
 {
     "message": "Hotel removed from active list successfully"
+}
+```
+#### Active khách sạn
+```
+GET http://localhost/bookingBackend/api/hotel/reactivate?id=1
+```
+
+Query Parameters:
+- `id`: ID của khách sạn cần chuyển trạng thái
+
+Body return (JSON):
+```json
+{
+    "message": "Hotel reactivated successfully"
 }
 ```
 

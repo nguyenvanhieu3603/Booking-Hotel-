@@ -13,11 +13,19 @@ class HotelModel extends Database
         return $this->select("SELECT * FROM hotels ORDER BY id ASC ", ["i"]);
     }
 
-    public function getHotelsByAddress($address)
+    public function getActiveHotelsByAddress($address)
+    {
+        return $this->select(
+            "SELECT * FROM hotels WHERE TRIM(SUBSTRING_INDEX(address, ',', -1)) = ? AND active != 1 ORDER BY id ASC",
+            ["s", $address]
+        );
+    }
+
+        public function getHotelsByAddress($address)
     {
         return $this->select(
             "SELECT * FROM hotels WHERE TRIM(SUBSTRING_INDEX(address, ',', -1)) = ? ORDER BY id ASC",
-            ["s", "$address"]
+            ["s", $address]
         );
     }
 
