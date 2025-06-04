@@ -765,6 +765,31 @@ Body return (JSON):
 ]
 ```
 
+#### Xem khách sạn không hoạt động
+```
+GET http://localhost/bookingBackend/api/hotel/inactive
+```
+
+Body return (JSON):
+```json (sai lệch do khác CSDL)
+[
+    {
+        "id": 13,
+        "name": "update_name",
+        "address": "update_address2, Hanoi",
+        "description": "update_description",
+        "rating": 4,
+        "active": 1,
+        "created_at": "2025-06-04 14:06:06",
+        "images": [
+            "uploads/hotel/default_hotel.png"
+        ],
+        "rooms": []
+    }
+]
+```
+
+
 #### Đếm số khách sạn trong 1 tỉnh
 ```
 GET http://localhost/bookingBackend/api/hotel/provinceCount?province=Hanoi
