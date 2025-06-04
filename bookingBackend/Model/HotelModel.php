@@ -104,4 +104,7 @@ class HotelModel extends Database
         AND TRIM(SUBSTRING_INDEX(address, ',', -1)) = ?
         AND rating >= ? ORDER BY id ASC", ["sd", $province, $rating]);
     }
+    public function getInactiveHotels(){
+        return $this->select("SELECT * FROM hotels WHERE active = 1 ORDER BY id ASC", ["i"]);
+    }
 }
