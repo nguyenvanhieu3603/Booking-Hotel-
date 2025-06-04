@@ -51,7 +51,6 @@ class HotelController extends BaseController
             );
         }
     }
-
     /**
      * "/hotel/province" Endpoint - List hotels by province
      */
@@ -526,6 +525,7 @@ class HotelController extends BaseController
 
                 if (!empty($_POST['delete_images']) && is_array($_POST['delete_images'])) {
                     foreach ($_POST['delete_images'] as $imgPath) {
+
                         $realPath = realpath($imgPath);
                         if ($realPath && strpos($realPath, realpath('uploads/hotel/')) === 0) {
                             $hotelModel->deleteHotelImage($hotelId, $imgPath); // delete from DB
@@ -578,6 +578,64 @@ class HotelController extends BaseController
             $this->sendOutput(
                 json_encode(['error' => $strErrorDesc]),
                 ['Content-Type: application/json', $strErrorHeader]
+            );
+        }
+    }
+    /**
+     * "/hotel/inactive" Endpoint - Get inactive hotel
+     */
+    public function inactiveAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                $hotelModel = new HotelModel();
+                $roomModel = new RoomModel();
+                
+                $arrHotels = $hotelModel->getInactiveHotels();
+
+                foreach ($arrHotels as &$hotel) {
+                    $hotelId = $hotel['id'];
+
+
+                    $images = $hotelModel->getImagesByHotelId($hotelId);
+                    $hotel['images'] = !empty($images)
+                        ? array_column($images, 'image_url')
+                        : ['uploads/hotel/default_hotel.png'];
+
+
+                    $rooms = $roomModel->getRoomsByHotelId($hotelId);
+                    foreach ($rooms as &$room) {
+                        $roomImages = $roomModel->getImagesByRoomId($room['id']);
+                        $room['images'] = !empty($roomImages)
+                            ? array_column($roomImages, 'image_url')
+                            : ['uploads/room/default_room.png'];
+                    }
+
+                    $hotel['rooms'] = $rooms;
+                }
+
+                $responseData = json_encode($arrHotels);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage() . ' Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
             );
         }
     }
