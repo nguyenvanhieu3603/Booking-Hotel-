@@ -400,7 +400,7 @@ class HotelController extends BaseController
 
                 $hotelId = $_GET['id'];
                 $hotelModel = new HotelModel();
-                $arrHotels = $hotelModel->getHotelById($hotelId);
+                $arrHotels = $hotelModel->getActiveHotelById($hotelId);
 
                 if (empty($arrHotels)) {
                     throw new Exception('Hotel not found');
@@ -454,7 +454,7 @@ class HotelController extends BaseController
                 $hotelId = $_GET['id'];
                 $hotelModel = new HotelModel();
 
-                $hotel = $hotelModel->getHotelById($hotelId);
+                $hotel = $hotelModel->getActiveHotelById($hotelId);
                 if (!$hotel) {
                     throw new Exception("Hotel with ID $hotelId not found");
                 }
@@ -466,6 +466,57 @@ class HotelController extends BaseController
 
                 $responseData = json_encode([
                     'message' => 'Hotel removed from active list successfully'
+                ]);
+            } catch (Exception $e) {
+                $strErrorDesc = $e->getMessage();
+                $strErrorHeader = 'HTTP/1.1 400 Bad Request';
+            }
+        } else {
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+    /**
+     * "/hotel/reactivate" Endpoint - Set hotel status to 0 (reactivate)
+    */
+    public function reactivateAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                if (!isset($_GET['id'])) {
+                    throw new Exception('Hotel ID is required');
+                }
+
+                $hotelId = $_GET['id'];
+                $hotelModel = new HotelModel();
+
+                $hotel = $hotelModel->getHotelById($hotelId);
+                if (!$hotel) {
+                    throw new Exception("Hotel with ID $hotelId not found");
+                }
+                if ($hotel[0]['active'] == 0) {
+                    throw new Exception("Hotel with ID $hotelId is already active");
+                }
+
+                $hotelModel->reactiveHotel($hotelId);
+
+                $responseData = json_encode([
+                    'message' => 'Hotel reactivated successfully'
                 ]);
             } catch (Exception $e) {
                 $strErrorDesc = $e->getMessage();
@@ -593,7 +644,7 @@ class HotelController extends BaseController
             try {
                 $hotelModel = new HotelModel();
                 $roomModel = new RoomModel();
-                
+
                 $arrHotels = $hotelModel->getInactiveHotels();
 
                 foreach ($arrHotels as &$hotel) {
