@@ -19,11 +19,7 @@ function HomePage() {
   const [guests, setGuests] = useState({ adults: 2, children: 0, rooms: 1 });
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
   const [featuredHotels, setFeaturedHotels] = useState([]);
-  const [destinationCounts, setDestinationCounts] = useState({
-    "Hạ Long": 40,
-    "Đà Nẵng": 50,
-    "TP Hồ Chí Minh": 60,
-  });
+  const [provinceHotelCounts, setProvinceHotelCounts] = useState({});
   const backendUrl = "http://localhost/bookingBackend";
 
   // Lấy danh sách khách sạn nổi bật
@@ -34,30 +30,30 @@ function HomePage() {
       .catch(() => setFeaturedHotels([]));
   }, []);
 
-  // Lấy số lượng khách sạn theo thành phố từ API
+  // Map tên hiển thị sang tên API
   useEffect(() => {
-    const cities = ["Ha Long", "Da Nang", "Ho Chi Minh"];
+    const provinceApiMap = {
+      "Hạ Long": "Ha Long",
+      "Đà Nẵng": "Da Nang",
+      "TP Hồ Chí Minh": "Ho Chi Minh",
+    };
     const fetchCounts = async () => {
       const counts = {};
-      for (const city of cities) {
+      for (const city of Object.keys(provinceApiMap)) {
+        const apiName = provinceApiMap[city];
         try {
-          const response = await axios.get(`${backendUrl}/api/hotel/count-by-city`, {
-            params: { city },
+          const response = await axios.get(`${backendUrl}/api/hotel/provinceCount`, {
+            params: { province: apiName },
           });
-          counts[city] = response.data.hotel_count;
-        } catch (error) {
-          console.error(`Error fetching count for ${city}:`, error);
-          counts[city] = 0; // Mặc định là 0 nếu lỗi
+          counts[city] = response.data.count;
+        } catch {
+          counts[city] = 0;
         }
       }
-      setDestinationCounts({
-        "Hạ Long": counts["Ha Long"],
-        "Đà Nẵng": counts["Da Nang"],
-        "TP Hồ Chí Minh": counts["Ho Chi Minh"],
-      });
+      setProvinceHotelCounts(counts);
     };
     fetchCounts();
-  }, []);
+  }, [backendUrl]);
 
   // Cấu hình slider cho khách sạn nổi bật và phản hồi khách hàng
   const feedbackSettings = {
@@ -186,32 +182,34 @@ function HomePage() {
           >
             {featuredHotels.map((hotel) => (
               <div key={hotel.id} className="px-2">
-                <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl h-full flex flex-col">
-                  <img
-                    src={hotel.images && hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://via.placeholder.com/300"}
-                    alt={hotel.name}
-                    className="w-full h-48 object-cover rounded-t-xl"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/300";
-                    }}
-                  />
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-semibold text-gray-800 truncate">{hotel.name}</h3>
-                    <div className="flex items-center gap-2 text-gray-500 mt-2 text-sm">
-                      <FaMapMarkerAlt className="text-[#febb02]" />
-                      <span className="truncate">{hotel.address}</span>
+                <Link to={`/home-list/${hotel.id}`} className="block h-full">
+                  <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl h-full flex flex-col">
+                    <img
+                      src={hotel.images && hotel.images[0] ? `${backendUrl}/${hotel.images[0]}` : "https://htmlburger.com/blog/wp-content/uploads/2021/07/The-Best-50-Website-Preloaders-Around-the-Web-Example-26.gif"}
+                      alt={hotel.name}
+                      className="w-full h-48 object-cover rounded-t-xl"
+                      onError={(e) => {
+                        e.target.src = "https://htmlburger.com/blog/wp-content/uploads/2021/07/The-Best-50-Website-Preloaders-Around-the-Web-Example-26.gif";
+                      }}
+                    />
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-lg font-semibold text-gray-800 truncate">{hotel.name}</h3>
+                      <div className="flex items-center gap-2 text-gray-500 mt-2 text-sm">
+                        <FaMapMarkerAlt className="text-[#febb02]" />
+                        <span className="truncate">{hotel.address}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-2">
+                        {[...Array(Math.round(hotel.rating || 0))].map((_, i) => (
+                          <FaStar key={i} className="text-[#febb02]" />
+                        ))}
+                        <span className="text-gray-600 ml-2 font-semibold">({hotel.rating || 0})</span>
+                      </div>
+                      <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">
+                        {hotel.description || "Không có mô tả"}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1 mt-2">
-                      {[...Array(Math.round(hotel.rating || 0))].map((_, i) => (
-                        <FaStar key={i} className="text-[#febb02]" />
-                      ))}
-                      <span className="text-gray-600 ml-2 font-semibold">({hotel.rating || 0})</span>
-                    </div>
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2 min-h-[40px]">
-                      {hotel.description || "Không có mô tả"}
-                    </p>
                   </div>
-                </div>
+                </Link>
               </div>
             ))}
           </Slider>
@@ -242,7 +240,7 @@ function HomePage() {
               />
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-800">Hạ Long</h3>
-                <p className="text-gray-500 mt-2">{destinationCounts["Hạ Long"]} khách sạn</p>
+                <p className="text-gray-500 mt-2">{provinceHotelCounts["Hạ Long"] ?? 0} khách sạn</p>
               </div>
             </div>
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -253,7 +251,7 @@ function HomePage() {
               />
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-800">Đà Nẵng</h3>
-                <p className="text-gray-500 mt-2">{destinationCounts["Đà Nẵng"]} khách sạn</p>
+                <p className="text-gray-500 mt-2">{provinceHotelCounts["Đà Nẵng"] ?? 0} khách sạn</p>
               </div>
             </div>
             <div className="bg-white cursor-pointer shadow-lg rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-2xl">
@@ -264,7 +262,7 @@ function HomePage() {
               />
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-800">TP Hồ Chí Minh</h3>
-                <p className="text-gray-500 mt-2">{destinationCounts["TP Hồ Chí Minh"]} khách sạn</p>
+                <p className="text-gray-500 mt-2">{provinceHotelCounts["TP Hồ Chí Minh"] ?? 0} khách sạn</p>
               </div>
             </div>
           </div>
