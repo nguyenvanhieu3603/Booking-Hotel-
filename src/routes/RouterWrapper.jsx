@@ -17,6 +17,7 @@ import Dashboard from "../page/Dashboard";
 import AdminDashboard from "../component/AdminDashboard";
 import DestinationsPage from "../page/DestinationsPage";
 import ProvinceHotelsPage from "../page/ProvinceHotelsPage";
+import HotelCreateForm from "../component/HotelCreateForm";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
@@ -57,6 +58,7 @@ function RouterWrapper() {
             { path: "hotels", element: <ManageHotels /> },
             { path: "bookings", element: <ManageBookings /> },
             { path: "profile", element: <AdminProfile /> },
+            { path: "hotels/create", element: <HotelCreateForm /> },
           ],
         },
         {

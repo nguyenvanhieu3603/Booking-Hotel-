@@ -25,7 +25,7 @@ function HomePage() {
   // Lấy danh sách khách sạn nổi bật
   useEffect(() => {
     axios
-      .get(`${backendUrl}/api/hotel/list`)
+      .get(`${backendUrl}/api/hotel/ratingFilter?rating=4`)
       .then((res) => setFeaturedHotels(res.data))
       .catch(() => setFeaturedHotels([]));
   }, []);
