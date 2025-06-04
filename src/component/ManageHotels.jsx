@@ -108,7 +108,7 @@ function ManageHotels() {
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow ${!hotel.active ? 'bg-[#003b95] text-white' : 'bg-gray-300 text-gray-700'}`}>{!hotel.active ? 'Active' : 'Inactive'}</span>
                     </td>
                     <td className="p-4 rounded-r-xl">
-                      <button className="cursor-pointer text-[#febb02] font-bold hover:underline hover:text-[#003b95] transition">Sửa</button>
+                      <button className="cursor-pointer text-[#febb02] font-bold hover:underline hover:text-[#003b95] transition" onClick={() => window.location.href = `/dashboard/hotels/edit/${hotel.id}`}>Sửa</button>
                       <button
                         className="cursor-pointer text-red-500 font-bold hover:underline ml-4 hover:text-red-700 transition"
                         onClick={() => handleDelete(hotel.id)}
