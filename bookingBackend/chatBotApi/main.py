@@ -55,15 +55,20 @@ class HotelRecommendationSystem:
         # Cấu hình Gemini API
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
+        print(f"Initialized HotelRecommendationSystem with base_api_url: {base_api_url}")
 
     def get_user_id_from_jwt(self, jwt_token: str) -> Optional[int]:
         """
         Trích xuất userId từ JWT mà không xác minh chữ ký
         """
+        print(f"Input JWT token: {jwt_token}")
         try:
             decoded = jwt.decode(jwt_token, options={"verify_signature": False})
-            return decoded.get('userId')
-        except jwt.InvalidTokenError:
+            user_id = decoded.get('userId')
+            print(f"Extracted userId from JWT: {user_id}")
+            return user_id
+        except jwt.InvalidTokenError as e:
+            print(f"Invalid JWT token: {e}")
             return None
 
     def save_session_context(self, user_id: int, context: Dict[str, Any]):
@@ -74,6 +79,7 @@ class HotelRecommendationSystem:
             "context": context,
             "timestamp": time.time()
         }
+        print(f"Saved session context for user {user_id}: {context}")
 
     def get_session_context(self, user_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -81,7 +87,9 @@ class HotelRecommendationSystem:
         """
         session = session_store.get(str(user_id))
         if session and time.time() - session["timestamp"] < SESSION_TTL:
+            print(f"Retrieved session context for user {user_id}: {session['context']}")
             return session["context"]
+        print(f"No valid session context for user {user_id}")
         return None
 
     def clear_session_context(self, user_id: int):
@@ -89,29 +97,38 @@ class HotelRecommendationSystem:
         Xóa bối cảnh của user
         """
         session_store.pop(str(user_id), None)
+        print(f"Cleared session context for user {user_id}")
 
     def fetch_booking_list(self, jwt_token: str) -> List[Dict[str, Any]]:
         """
         Lấy danh sách đặt phòng từ API với cookie JWT
         """
+        print(f"Fetching booking list with JWT: {jwt_token}")
         try:
             headers = {
                 'Cookie': f'jwt={jwt_token}'
             }
             response = requests.get(self.booking_list_url, headers=headers, timeout=10)
             response.raise_for_status()
-            return response.json()
+            bookings = response.json()
+            print(f"Fetched booking list: {bookings}")
+            return bookings
         except requests.exceptions.RequestException as e:
+            print(f"Error fetching booking list: {e}")
             return [{"error": f"Lỗi khi lấy danh sách đặt phòng: {str(e)}"}]
         except json.JSONDecodeError:
+            print("Error parsing booking list response")
             return [{"error": "Lỗi phân tích phản hồi từ API danh sách đặt phòng"}]
 
     def format_booking_list(self, bookings: List[Dict[str, Any]]) -> str:
         """
         Định dạng danh sách đặt phòng thành văn bản thân thiện
         """
+        print(f"Formatting booking list: {bookings}")
         if not bookings or "error" in bookings[0]:
-            return bookings[0]["error"] if bookings else "Không có đặt phòng nào trong lịch sử của bạn."
+            error_msg = bookings[0]["error"] if bookings else "Không có đặt phòng nào trong lịch sử của bạn."
+            print(f"Booking list error: {error_msg}")
+            return error_msg
         
         formatted_text = "📋 **Danh sách đặt phòng của bạn:**\n\n"
         status_map = {
@@ -135,12 +152,14 @@ class HotelRecommendationSystem:
             ---
             """
         formatted_text += "Bạn có muốn xem chi tiết đặt phòng nào hoặc cần hỗ trợ thêm không?"
+        print(f"Formatted booking list: {formatted_text}")
         return formatted_text.strip()
 
     def classify_user_intent(self, user_input: str) -> Dict[str, Any]:
         """
         Sử dụng Gemini để phân loại ý định người dùng và trích xuất thông tin
         """
+        print(f"Classifying intent for user input: {user_input}")
         now_str = datetime.now().strftime("%Y-%m-%d (%A)")
         classification_prompt = f"""
 Bạn là một AI chuyên phân tích ý định của khách hàng trong lĩnh vực khách sạn. 
@@ -151,7 +170,7 @@ INPUT: "{user_input}"
 Hãy xác định:
 1. INTENT: "search_hotels" (tìm kiếm khách sạn), "check_rooms" (xem phòng trống), "book_room" (đặt phòng), hoặc "view_bookings" (xem danh sách đặt phòng)
 2. Trích xuất thông tin liên quan, bao gồm roomId hoặc tên phòng (VD: P1003) nếu được chỉ định
-3. Trích xuất số người (people) từ câu, ví dụ: "cho 2 người" → people: 2. Nếu không rõ số người, để people: 1
+3. Trích xuất số người (people) từ câu, ví dụ: "cho 2 người" → people: 2. Nếu không có thông tin số người, để people: null
 
 RULES:
 - Nếu người dùng muốn xem lịch sử đặt phòng, danh sách booking → "view_bookings"
@@ -159,10 +178,16 @@ RULES:
 - Nếu người dùng muốn xem phòng trống với ngày cụ thể → "check_rooms"
 - Nếu người dùng muốn đặt phòng với ngày và khách sạn cụ thể → "book_room"
 - Nếu người dùng chỉ định roomId (VD: "với roomId 8") hoặc tên phòng (VD: "phòng P1003"), trích xuất vào hotel_info
-- Nếu họ chỉ nói chung là "cuối tuần","ngày mai","cuối tháng","đầu tháng" thì bạn hãy tự xác định ngày phù hợp dựa vào thời gian hiện tại là {now_str}.
+- Nếu họ chỉ nói chung là "cuối tuần","ngày mai","cuối tháng","đầu tháng" thì bạn hãy tự xác định ngày phù hợp dựa vào thời gian hiện tại là {now_str}:
++ "cuối tuần" → ngày thứ 7 và chủ nhật gần nhất
++ "đầu tuần" → ngày thứ 2 và thứ 3 gần nhất
++ "ngày mai" → ngày tiếp theo
++ "cuối tháng này" → 2 ngày cuối cùng của tháng hiện tại
++ "đầu tháng sau" → 2 ngày đầu tiên của tháng sau
++ Nói chung,cuối -> 2 ngày cuối của tuần,tháng,năm, đầu -> 2 ngày đầu của tuần,tháng,năm.
 - Ngày có thể ở format: YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY
 - Tên khách sạn có thể viết không dấu hoặc có dấu
-- Nếu không rõ số người trong câu (VD: "Đặt phòng P1003"), để people: null để sử dụng bối cảnh từ session trước đó
+- Nếu không có thông tin số người trong câu (VD: "Đặt phòng P1003"), để people: null để sử dụng từ session
 
 Trả về JSON format:
 {{
@@ -194,17 +219,21 @@ Trả về JSON format:
                 response_text = response_text.replace('```', '').strip()
             
             classification_result = json.loads(response_text)
+            print(f"Classification result from Gemini: {classification_result}")
             return classification_result
             
         except json.JSONDecodeError as e:
+            print(f"JSON decode error: {e}")
             return self._fallback_classification(user_input)
         except Exception as e:
+            print(f"Error in classify_user_intent: {e}")
             return self._fallback_classification(user_input)
 
     def _fallback_classification(self, user_input: str) -> Dict[str, Any]:
         """
         Phương pháp phân loại dự phòng khi Gemini lỗi
         """
+        print(f"Using fallback classification for input: {user_input}")
         user_input_lower = user_input.lower()
         
         book_keywords = ['đặt phòng', 'book room', 'booking', 'reserve room']
@@ -226,7 +255,19 @@ Trả về JSON format:
         room_id_match = re.search(r'roomId\s*(\d+)', user_input, re.IGNORECASE)
         room_name_match = re.search(r'phòng\s*([A-Za-z0-9]+)', user_input_lower)
         room_type_match = re.search(r'phòng\s*(deluxe|standard|suite)', user_input_lower)
-        people_match = re.search(r'cho\s*(\d+)\s*người', user_input_lower)
+        
+        # Trích xuất số người
+        people_patterns = [
+            r'cho\s*(\d+)\s*người',
+            r'(\d+)\s*người',
+            r'phòng\s*cho\s*(\d+)',
+        ]
+        people = None  # Không đặt mặc định là 1
+        for pattern in people_patterns:
+            match = re.search(pattern, user_input_lower)
+            if match:
+                people = int(match.group(1))
+                break
         
         hotel_info = {"name": None, "id": None, "room_id": None, "room_name": None, "room_type": None}
         if room_id_match:
@@ -236,10 +277,8 @@ Trả về JSON format:
         if room_type_match:
             hotel_info["room_type"] = room_type_match.group(1).capitalize()
         
-        people = int(people_match.group(1)) if people_match else None
-        
         if has_view_booking_keywords:
-            return {
+            result = {
                 "intent": "view_bookings",
                 "confidence": 0.95,
                 "hotel_info": hotel_info,
@@ -247,7 +286,7 @@ Trả về JSON format:
                 "extracted_requirements": user_input
             }
         elif has_book_keywords:
-            return {
+            result = {
                 "intent": "book_room",
                 "confidence": 0.9,
                 "hotel_info": hotel_info,
@@ -260,20 +299,20 @@ Trả về JSON format:
                 "extracted_requirements": user_input
             }
         elif has_room_keywords and len(dates) >= 2:
-            return {
+            result = {
                 "intent": "check_rooms",
                 "confidence": 0.8,
                 "hotel_info": hotel_info,
                 "booking_info": {
                     "check_in_date": dates[0],
                     "check_out_date": dates[1],
-                    "people": people if people else 1,
+                    "people": people if people is not None else 1,
                     "original_dates": dates
                 },
                 "extracted_requirements": user_input
             }
         else:
-            return {
+            result = {
                 "intent": "search_hotels",
                 "confidence": 0.7,
                 "hotel_info": hotel_info,
@@ -282,21 +321,31 @@ Trả về JSON format:
                 },
                 "extracted_requirements": user_input
             }
+        print(f"Fallback classification result: {result}")
+        return result
 
     def fetch_hotel_list(self) -> List[Dict[str, Any]]:
         """Lấy danh sách khách sạn từ REST API"""
+        print(f"Fetching hotel list from: {self.hotel_api_url}")
         try:
             response = requests.get(self.hotel_api_url, timeout=10)
             response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
+            hotels = response.json()
+            print(f"Fetched hotel list: {hotels}")
+            return hotels
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching hotel list: {e}")
             return []
         except json.JSONDecodeError:
+            print("Error parsing hotel list response")
             return []
 
     def check_room_availability(self, hotel_id: int, check_in_date: str, 
-                              check_out_date: str, people: int) -> Dict[str, Any]:
+                              check_out_date: str, people: Optional[int] = None) -> Dict[str, Any]:
         """Kiểm tra phòng trống của khách sạn"""
+        if people is None:
+            people = 1  # Mặc định là 1
+        print(f"Checking room availability - hotel_id: {hotel_id}, check_in: {check_in_date}, check_out: {check_out_date}, people: {people}")
         try:
             params = {
                 'hotelId': hotel_id,
@@ -306,14 +355,19 @@ Trả về JSON format:
             }
             response = requests.get(self.availability_api_url, params=params, timeout=10)
             response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException:
+            availability = response.json()
+            print(f"Room availability response: {availability}")
+            return availability
+        except requests.exceptions.RequestException as e:
+            print(f"Error checking room availability: {e}")
             return {"rooms": [], "message": "Error checking availability"}
         except json.JSONDecodeError:
+            print("Error parsing availability response")
             return {"rooms": [], "message": "Error parsing response"}
 
     def book_room(self, hotel_id: int, room_id: int, check_in_date: str, check_out_date: str, jwt_token: str) -> Dict[str, Any]:
         """Gửi yêu cầu đặt phòng đến API"""
+        print(f"Booking room - hotel_id: {hotel_id}, room_id: {room_id}, check_in: {check_in_date}, check_out: {check_out_date}, JWT: {jwt_token}")
         try:
             headers = {
                 'Content-Type': 'application/json',
@@ -327,38 +381,49 @@ Trả về JSON format:
             }
             response = requests.post(self.booking_api_url, json=payload, headers=headers, timeout=10)
             response.raise_for_status()
-            return response.json()
+            booking_response = response.json()
+            print(f"Booking response: {booking_response}")
+            return booking_response
         except requests.exceptions.RequestException as e:
+            print(f"Error booking room: {e}")
             return {"error": f"Lỗi khi đặt phòng: {str(e)}"}
         except json.JSONDecodeError:
+            print("Error parsing booking response")
             return {"error": "Lỗi phân tích phản hồi từ API đặt phòng"}
 
     def find_hotel_by_name(self, hotel_name: str) -> Optional[Dict[str, Any]]:
         """Tìm khách sạn theo tên (fuzzy matching)"""
+        print(f"Finding hotel by name: {hotel_name}")
         try:
             hotels = self.fetch_hotel_list()
             hotel_name_lower = hotel_name.lower().strip()
             
             for hotel in hotels:
                 if hotel.get('name', '').lower() == hotel_name_lower:
+                    print(f"Found exact match: {hotel}")
                     return hotel
             
             for hotel in hotels:
                 if hotel_name_lower in hotel.get('name', '').lower():
+                    print(f"Found partial match: {hotel}")
                     return hotel
             
             name_words = hotel_name_lower.split()
             for hotel in hotels:
                 hotel_name_check = hotel.get('name', '').lower()
                 if all(word in hotel_name_check for word in name_words):
+                    print(f"Found word match: {hotel}")
                     return hotel
             
+            print(f"No hotel found for name: {hotel_name}")
             return None
-        except Exception:
+        except Exception as e:
+            print(f"Error finding hotel: {e}")
             return None
 
     def format_hotel_data_for_ai(self, hotels: List[Dict[str, Any]]) -> str:
         """Định dạng dữ liệu khách sạn để gửi cho AI"""
+        print(f"Formatting hotel data: {hotels}")
         if not hotels:
             return "Không có khách sạn nào khả dụng."
         
@@ -372,10 +437,12 @@ Trả về JSON format:
 📅 Ngày tạo: {hotel.get('created_at', 'N/A')}
 ---
 """
+        print(f"Formatted hotel data: {formatted_data}")
         return formatted_data.strip()
 
     def format_room_data_for_ai(self, rooms: List[Dict[str, Any]], hotel_name: str = "") -> str:
         """Định dạng dữ liệu phòng để gửi cho AI"""
+        print(f"Formatting room data for hotel {hotel_name}: {rooms}")
         if not rooms:
             return f"Không có phòng trống tại {hotel_name}."
         
@@ -401,6 +468,7 @@ Trả về JSON format:
                 formatted_data += f" và {len(room_names) - 5} phòng khác"
             formatted_data += "\n---\n"
         
+        print(f"Formatted room data: {formatted_data}")
         return formatted_data.strip()
 
     def create_recommendation_prompt(self, user_query: str, hotel_data: str) -> str:
@@ -419,9 +487,8 @@ HƯỚNG DẪN TRẢ LỜI:
 - Đưa ra thông tin chi tiết về từng khách sạn được gợi ý
 - Kết thúc bằng câu: "Bạn có muốn xem phòng trống ở khách sạn nào không?'"
 - Trả lời bằng tiếng Việt một cách thân thiện và chuyên nghiệp.
-
-
 """
+        print(f"Created recommendation prompt: {prompt}")
         return prompt
 
     def create_room_recommendation_prompt(self, user_query: str, room_data: str, 
@@ -443,13 +510,13 @@ HƯỚNG DẪN TRẢ LỜI:
 - Phân tích giá cả và tiện nghi
 - Đưa ra lời khuyên về lựa chọn phòng
 - Trả lời bằng tiếng Việt một cách thân thiện và chuyên nghiệp.
-
-
 """
+        print(f"Created room recommendation prompt: {prompt}")
         return prompt
 
     def get_hotel_recommendation(self, user_query: str) -> str:
         """Lấy gợi ý khách sạn từ Gemini API"""
+        print(f"Getting hotel recommendation for query: {user_query}")
         try:
             hotels = self.fetch_hotel_list()
             if not hotels:
@@ -457,13 +524,17 @@ HƯỚNG DẪN TRẢ LỜI:
             hotel_data = self.format_hotel_data_for_ai(hotels)
             prompt = self.create_recommendation_prompt(user_query, hotel_data)
             response = self.model.generate_content(prompt)
-            return response.text
+            recommendation = response.text
+            print(f"Hotel recommendation: {recommendation}")
+            return recommendation
         except Exception as e:
+            print(f"Error getting hotel recommendation: {e}")
             return f"❌ Xin lỗi, đã có lỗi xảy ra: {str(e)}"
 
     def get_room_recommendation(self, hotel_id: int, check_in_date: str, 
                               check_out_date: str, people: int, user_query: str = "") -> str:
         """Lấy gợi ý phòng từ Gemini API"""
+        print(f"Getting room recommendation - hotel_id: {hotel_id}, check_in: {check_in_date}, check_out: {check_out_date}, people: {people}")
         try:
             hotels = self.fetch_hotel_list()
             hotel_name = "Khách sạn"
@@ -479,32 +550,43 @@ HƯỚNG DẪN TRẢ LỜI:
             prompt = self.create_room_recommendation_prompt(user_query or "Tư vấn phòng phù hợp", 
                                                          room_data, check_in_date, check_out_date, people)
             response = self.model.generate_content(prompt)
-            return response.text
+            recommendation = response.text
+            print(f"Room recommendation: {recommendation}")
+            return recommendation
         except Exception as e:
+            print(f"Error getting room recommendation: {e}")
             return f"❌ Xin lỗi, đã có lỗi xảy ra: {str(e)}"
 
     def normalize_date_format(self, date_str: str) -> str:
         """Chuẩn hóa format ngày về YYYY-MM-DD"""
+        print(f"Normalizing date: {date_str}")
         if not date_str:
             return date_str
         if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
             return date_str
         if re.match(r'^\d{2}[-/]\d{2}[-/]\d{4}$', date_str):
             parts = re.split(r'[-/]', date_str)
-            return f"{parts[2]}-{parts[1]}-{parts[0]}"
+            normalized_date = f"{parts[2]}-{parts[1]}-{parts[0]}"
+            print(f"Normalized date: {normalized_date}")
+            return normalized_date
+        print(f"Date format not recognized: {date_str}")
         return date_str
 
     def process_user_request(self, user_input: str, jwt_token: Optional[str] = None) -> Dict[str, Any]:
         """
         Xử lý yêu cầu người dùng với Gemini classification và bối cảnh session
         """
+        print(f"Processing user request - input: {user_input}, JWT: {jwt_token}")
         classification = self.classify_user_intent(user_input)
         intent = classification.get('intent')
         confidence = classification.get('confidence', 0)
+        print(f"Intent classified: {intent}, confidence: {confidence}")
         
         if confidence < 0.5:
+            response = "❓ Xin lỗi, tôi không hiểu rõ yêu cầu của bạn. Bạn có thể nói rõ hơn được không?\n💡 Ví dụ: 'Tìm khách sạn gần trung tâm', 'Xem đặt phòng của tôi', hoặc 'Đặt phòng Hotel ABC từ 2025-06-01 đến 2025-06-05'"
+            print(f"Low confidence response: {response}")
             return {
-                "response": "❓ Xin lỗi, tôi không hiểu rõ yêu cầu của bạn. Bạn có thể nói rõ hơn được không?\n💡 Ví dụ: 'Tìm khách sạn gần trung tâm', 'Xem đặt phòng của tôi', hoặc 'Đặt phòng Hotel ABC từ 2025-06-01 đến 2025-06-05'",
+                "response": response,
                 "intent": intent,
                 "confidence": confidence,
                 "hotel_info": classification.get('hotel_info'),
@@ -514,8 +596,10 @@ HƯỚNG DẪN TRẢ LỜI:
         
         if intent == "view_bookings":
             if not jwt_token:
+                response = "❌ Vui lòng đăng nhập để xem danh sách đặt phòng."
+                print(f"View bookings response (not logged in): {response}")
                 return {
-                    "response": "❌ Vui lòng đăng nhập để xem danh sách đặt phòng.",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": classification.get('hotel_info'),
@@ -525,6 +609,7 @@ HƯỚNG DẪN TRẢ LỜI:
             
             bookings = self.fetch_booking_list(jwt_token)
             response = self.format_booking_list(bookings)
+            print(f"View bookings response: {response}")
             return {
                 "response": response,
                 "intent": intent,
@@ -536,6 +621,7 @@ HƯỚNG DẪN TRẢ LỜI:
         
         elif intent == "search_hotels":
             response = self.get_hotel_recommendation(classification.get('extracted_requirements', user_input))
+            print(f"Search hotels response: {response}")
             return {
                 "response": response,
                 "intent": intent,
@@ -551,11 +637,13 @@ HƯỚNG DẪN TRẢ LỜI:
             
             check_in = self.normalize_date_format(booking_info.get('check_in_date', ''))
             check_out = self.normalize_date_format(booking_info.get('check_out_date', ''))
-            people = booking_info.get('people', 1)
+            people = booking_info.get('people', 1)  # Mặc định là 1 nếu không có thông tin
             
             if not check_in or not check_out:
+                response = "❌ Vui lòng cung cấp ngày check-in và check-out.\n💡 Ví dụ: 'Xem phòng Hotel ABC từ 2025-06-01 đến 2025-06-05 cho 2 người'"
+                print(f"Check rooms response (missing dates): {response}")
                 return {
-                    "response": "❌ Vui lòng cung cấp ngày check-in và check-out.\n💡 Ví dụ: 'Xem phòng Hotel ABC từ 2025-06-01 đến 2025-06-05 cho 2 người'",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": hotel_info,
@@ -571,8 +659,10 @@ HƯỚNG DẪN TRẢ LỜI:
             elif hotel_name:
                 hotel = self.find_hotel_by_name(hotel_name)
                 if not hotel:
+                    response = f"❌ Không tìm thấy khách sạn: '{hotel_name}'\n💡 Hãy thử tìm khách sạn trước, sau đó xem phòng trống."
+                    print(f"Check rooms response (hotel not found): {response}")
                     return {
-                        "response": f"❌ Không tìm thấy khách sạn: '{hotel_name}'\n💡 Hãy thử tìm khách sạn trước, sau đó xem phòng trống.",
+                        "response": response,
                         "intent": intent,
                         "confidence": confidence,
                         "hotel_info": hotel_info,
@@ -582,8 +672,10 @@ HƯỚNG DẪN TRẢ LỜI:
                 hotel_id = hotel.get('id')
                 hotel_name = hotel.get('name')
             else:
+                response = "❌ Vui lòng chỉ định tên hoặc ID khách sạn.\n💡 Ví dụ: 'Xem phòng Royal Garden Hotel từ 2025-06-01 đến 2025-06-05'"
+                print(f"Check rooms response (no hotel specified): {response}")
                 return {
-                    "response": "❌ Vui lòng chỉ định tên hoặc ID khách sạn.\n💡 Ví dụ: 'Xem phòng Royal Garden Hotel từ 2025-06-01 đến 2025-06-05'",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": hotel_info,
@@ -604,6 +696,7 @@ HƯỚNG DẪN TRẢ LỜI:
                     })
             
             response = self.get_room_recommendation(hotel_id, check_in, check_out, people, user_input)
+            print(f"Check rooms response: {response}")
             return {
                 "response": response,
                 "intent": intent,
@@ -615,8 +708,10 @@ HƯỚNG DẪN TRẢ LỜI:
         
         elif intent == "book_room":
             if not jwt_token:
+                response = "❌ Vui lòng đăng nhập để đặt phòng."
+                print(f"Book room response (not logged in): {response}")
                 return {
-                    "response": "❌ Vui lòng đăng nhập để đặt phòng.",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": classification.get('hotel_info'),
@@ -647,14 +742,18 @@ HƯỚNG DẪN TRẢ LỜI:
                 check_in = session_context.get('check_in_date')
             if not check_out and session_context:
                 check_out = session_context.get('check_out_date')
-            if not people and session_context:  # Ưu tiên session nếu people không được cung cấp
-                people = session_context.get('people', 1)
+            if people is None and session_context:
+                people = session_context.get('people', 1)  # Lấy từ session, mặc định 1 nếu không có
+            elif people is None:
+                people = 1  # Mặc định là 1 nếu không có session
             
             if not hotel_id and hotel_name:
                 hotel = self.find_hotel_by_name(hotel_name)
                 if not hotel:
+                    response = f"❌ Không tìm thấy khách sạn: '{hotel_name}'\n💡 Hãy thử tìm khách sạn trước, sau đó đặt phòng."
+                    print(f"Book room response (hotel not found): {response}")
                     return {
-                        "response": f"❌ Không tìm thấy khách sạn: '{hotel_name}'\n💡 Hãy thử tìm khách sạn trước, sau đó đặt phòng.",
+                        "response": response,
                         "intent": intent,
                         "confidence": confidence,
                         "hotel_info": hotel_info,
@@ -665,8 +764,10 @@ HƯỚNG DẪN TRẢ LỜI:
                 hotel_name = hotel.get('name')
             
             if not hotel_id:
+                response = "❌ Vui lòng chỉ định tên hoặc ID khách sạn.\n💡 Ví dụ: 'Đặt phòng Royal Garden Hotel từ 2025-06-01 đến 2025-06-05'"
+                print(f"Book room response (no hotel specified): {response}")
                 return {
-                    "response": "❌ Vui lòng chỉ định tên hoặc ID khách sạn.\n💡 Ví dụ: 'Đặt phòng Royal Garden Hotel từ 2025-06-01 đến 2025-06-05'",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": hotel_info,
@@ -675,8 +776,10 @@ HƯỚNG DẪN TRẢ LỜI:
                 }
             
             if not check_in or not check_out:
+                response = "❌ Vui lòng cung cấp ngày check-in và check-out.\n💡 Ví dụ: 'Đặt phòng Hotel ABC từ 2025-06-01 đến 2025-06-05 cho 2 người'"
+                print(f"Book room response (missing dates): {response}")
                 return {
-                    "response": "❌ Vui lòng cung cấp ngày check-in và check-out.\n💡 Ví dụ: 'Đặt phòng Hotel ABC từ 2025-06-01 đến 2025-06-05 cho 2 người'",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": {"name": hotel_name, "id": hotel_id},
@@ -699,8 +802,10 @@ HƯỚNG DẪN TRẢ LỜI:
                 availability_data = self.check_room_availability(hotel_id, check_in, check_out, people)
                 rooms = availability_data.get('rooms', [])
                 if not rooms:
+                    response = f"❌ Không có phòng trống tại {hotel_name} từ {check_in} đến {check_out} cho {people} người."
+                    print(f"Book room response (no rooms available): {response}")
                     return {
-                        "response": f"❌ Không có phòng trống tại {hotel_name} từ {check_in} đến {check_out} cho {people} người.",
+                        "response": response,
                         "intent": intent,
                         "confidence": confidence,
                         "hotel_info": {"name": hotel_name, "id": hotel_id},
@@ -718,8 +823,10 @@ HƯỚNG DẪN TRẢ LỜI:
                     })
                 # Trả về danh sách phòng trống để người dùng chọn
                 room_data = self.format_room_data_for_ai(rooms, hotel_name)
+                response = f"Dựa trên yêu cầu của bạn, đây là các phòng trống tại {hotel_name}:\n{room_data}\nVui lòng chọn ID phòng hoặc tên phòng để đặt (VD: 'Đặt phòng với roomId ...' hoặc 'Đặt phòng với tên phòng')."
+                print(f"Book room response (choose room): {response}")
                 return {
-                    "response": f"Dựa trên yêu cầu của bạn, đây là các phòng trống tại {hotel_name}:\n{room_data}\nVui lòng chọn ID phòng hoặc tên phòng để đặt (VD: 'Đặt phòng với roomId 7' hoặc 'Đặt phòng P1003').",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": {"name": hotel_name, "id": hotel_id},
@@ -740,8 +847,10 @@ HƯỚNG DẪN TRẢ LỜI:
             # Nếu có room_id, tiến hành đặt phòng
             booking_response = self.book_room(hotel_id, room_id, check_in, check_out, jwt_token)
             if 'error' in booking_response:
+                response = f"❌ Đặt phòng thất bại: {booking_response['error']}"
+                print(f"Book room response (booking failed): {response}")
                 return {
-                    "response": f"❌ Đặt phòng thất bại: {booking_response['error']}",
+                    "response": response,
                     "intent": intent,
                     "confidence": confidence,
                     "hotel_info": {"name": hotel_name, "id": hotel_id},
@@ -753,8 +862,10 @@ HƯỚNG DẪN TRẢ LỜI:
             if user_id:
                 self.clear_session_context(user_id)
             
+            response = f"✅ Đặt phòng thành công tại {hotel_name}! Mã đặt phòng: {booking_response.get('id')}"
+            print(f"Book room response (success): {response}")
             return {
-                "response": f"✅ Đặt phòng thành công tại {hotel_name}! Mã đặt phòng: {booking_response.get('id')}.",
+                "response": response,
                 "intent": intent,
                 "confidence": confidence,
                 "hotel_info": {"name": hotel_name, "id": hotel_id},
@@ -762,8 +873,10 @@ HƯỚNG DẪN TRẢ LỜI:
                 "extracted_requirements": classification.get('extracted_requirements')
             }
         
+        response = "❓ Xin lỗi, tôi không thể xử lý yêu cầu này. Hãy thử lại với yêu cầu rõ ràng hơn."
+        print(f"Default response: {response}")
         return {
-            "response": "❓ Xin lỗi, tôi không thể xử lý yêu cầu này. Hãy thử lại với yêu cầu rõ ràng hơn.",
+            "response": response,
             "intent": intent,
             "confidence": confidence,
             "hotel_info": classification.get('hotel_info'),
@@ -788,11 +901,15 @@ async def chat_endpoint(request: ChatRequest):
     """
     Endpoint để xử lý yêu cầu chat từ giao diện chatbot
     """
+    print(f"Received chat request - user_input: {request.user_input}, jwt_token: {request.jwt_token}")
     try:
         result = recommendation_system.process_user_request(request.user_input, request.jwt_token)
+        print(f"Chat endpoint response: {result}")
         return ChatResponse(**result)
     except Exception as e:
+        print(f"Error in chat endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Lỗi xử lý yêu cầu: {str(e)}")
 
 if __name__ == "__main__":
+    print("Starting FastAPI server...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
