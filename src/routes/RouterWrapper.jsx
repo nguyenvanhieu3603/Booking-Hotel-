@@ -19,6 +19,7 @@ import DestinationsPage from "../page/DestinationsPage";
 import ProvinceHotelsPage from "../page/ProvinceHotelsPage";
 import HotelCreateForm from "../component/HotelCreateForm";
 import HotelEditForm from "../component/HotelEditForm";
+import ChatBot from "../page/ChatBot";
 
 function RouterWrapper() {
   const router = createBrowserRouter([
@@ -37,6 +38,10 @@ function RouterWrapper() {
         {
           path: "destinations",
           element: <DestinationsPage />,
+        },
+        {
+          path: "chat-bot",
+          element: <ChatBot />,
         },
         {
           path: "home-list",
