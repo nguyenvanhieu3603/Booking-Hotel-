@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
-
+import { BsRobot } from "react-icons/bs";
 import VietNamFlag from "../assets/img/VietNam.png";
 import AmericaFlag from "../assets/img/America.png";
 import { AppContext } from "../context/ContextData";
@@ -13,9 +13,6 @@ function Header() {
   const { setLocale, locale, isAuth, setIsAuth } = useContext(AppContext);
 
   const [isAdmin, setIsAdmin] = useState(false);
-
-
-
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -78,6 +75,13 @@ function Header() {
             />
           </Link>
           <Link
+            to={"/chat-bot"}
+            className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition flex items-center gap-2"
+          >
+            <FormattedMessage id="header.contact" defaultMessage="Trợ lý AI" />
+            <BsRobot className="text-xl" />
+          </Link>
+          <Link
             to={"/about-us"}
             className="hover:opacity-90 font-[400] hover:bg-[#6987b6] rounded-lg p-3 transition"
           >
@@ -112,7 +116,6 @@ function Header() {
 
               {/* Nếu không dùng react-icons thì thay bằng: <span style={{fontSize: 28}}>👤</span> */}
             </Link>
-
           )}
           <div
             className={`absolute top-[49px] bg-[#f5f1f1] rounded-lg p-3 transition-all duration-500 ease-in-out overflow-hidden shadow-lg transform ${
